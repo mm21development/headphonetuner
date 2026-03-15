@@ -9,7 +9,8 @@
 
 ## Projektbeschreibung & Anleitung
 ### Verwendung
-Einfach die Datei headphone_tuner.html herunterladen und anschließend im Browser öffnen.
+Einfach die Datei headphone_tuner.html herunterladen und anschließend im Browser öffnen. Bitte darauf achten, dass bei Verwendung des Tools keine Filter eines laufenden Equalizers wie EqualizerAPO aktiv sind, da diese sonst die Ergebnisse verfälschen - außer natürlich das Tuning wird direkt in dem externen EQ durchgeführt und die Filter des Tools werden gar nicht verwendet.
+
 ### Kernfunktionen und Durchführung des Tunings
 * **Sinus-Generator und Filter-Erzeugung:** Der Sinus-Generator Erzeugt eine reine Wellenform mit einstellbarer Frequenz, mit der schmalbandige Resonanzen (Peaks) oder Auslöschungen (Dips) aufgespürt werden können.
     * Ein neuer Filter wird automatisch an der aktuellen Stelle des Sinus-Generators gesetzt, um Pegelunterschiede sofort ausgleichen zu können. Finde also den Mittelpunkt und setze einen Filter.
@@ -89,7 +90,8 @@ Das waren die wichtigsten Informationen darüber, wie dieses Tool zu verwenden i
 
 ## Project Description & Instructions
 ### Usage
-Simply download the file headphone_tuner.html and open it in your browser.
+Simply download the file headphone_tuner.html and open it in your browser. Please make sure that no filters from a running equalizer (such as EqualizerAPO) are active when using the tool, as these will otherwise distort the results - unless, of course, the tuning is performed directly in the external EQ and the tool’s filters are not used at all.
+
 ### Core Features and Tuning Process
 * **Sine Generator and Filter Creation:** The sine generator produces a pure waveform at an adjustable frequency, which can be used to detect narrowband resonances (peaks) or cancellations (dips).
     * A new filter is automatically placed at the current position of the sine generator to immediately compensate for level differences. Find the center point and set a filter.
