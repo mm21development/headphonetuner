@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parametric EQ Headphone Tuner (PEQ Pro)</title>
+    <style>
+        :root {
+            --bg-color: #f4f4f9;
+            --container-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #dddddd;
+            --accent-color: #007bff;
+            --accent-hover: #0056b3;
+            --danger-color: #dc3545;
+            --danger-hover: #a71d2a;
+            --warning-color: #e67e22;
+            --warning-hover: #d35400;
+            --canvas-bg: #f8f9fa;
+        }
+
+        body.dark-mode {
+            --bg-color: #121212;
+            --container-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --border-color: #444444;
+            --accent-color: #339af0;
+            --accent-hover: #1c7ed6;
+            --canvas-bg: #2a2a2a;
+        }
+
+        * {
+            box-sizing: border-box;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background: var(--container-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .settings-group {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .toggle-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--accent-hover);
+        }
+
+        button.danger {
+            background-color: var(--danger-color);
+        }
+
+        button.danger:hover {
+            background-color: var(--danger-hover);
+        }
+
+        button.secondary {
+            background-color: #6c757d;
+        }
+
+        button.secondary:hover {
+            background-color: #5a6268;
+        }
+
+        button.warning {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        button.warning:hover {
+            background-color: var(--warning-hover);
+        }
+
+        .section {
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+        }
+
+        .full-width-slider {
+            width: 100%;
+            margin: 15px 0;
+            cursor: pointer;
+        }
+
+        .controls-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: 60px 140px 1fr 1fr 1fr 110px;
+            gap: 12px;
+            align-items: end;
+            background: var(--bg-color);
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: var(--container-bg);
+            color: var(--text-color);
+        }
+
+        input:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #eee;
+        }
+
+        canvas {
+            width: 100%;
+            height: 350px;
+            background-color: var(--canvas-bg);
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 22px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: var(--accent-color);
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(22px);
+        }
+
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .mode-icon {
+            font-size: 1.2em;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.3s ease;
+        }
+
+        .dark-mode .mode-icon {
+            transform: rotate(360deg);
+        }
+
+        .warning-box {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(220, 53, 69, 0.1);
+            border: 1px solid var(--danger-color);
+            border-radius: 8px;
+            color: var(--danger-color);
+            font-weight: bold;
+            font-size: 0.9em;
+            line-height: 1.4;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dark-mode #infoSection button {
+            color: var(--accent-color) !important;
+        }
+
+        #infoSection button:hover {
+            transform: scale(1.2);
+            transition: transform 0.2s;
+        }
+
+        #showInfoBtn {
+            color: white;
+            font-weight: bold;
+            font-family: serif;
+            /* Klassischer Look für ein Info-i */
+            cursor: pointer;
+            border: none;
+            transition: transform 0.2s, background-color 0.2s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        #showInfoBtn:hover {
+            transform: scale(1.1);
+            background-color: var(--accent-hover);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="top-bar">
+            <h1 data-t="title">Headphone Tuner (PEQ)</h1>
+            <div class="settings-group">
+                <div class="toggle-item">
+                    <span data-t="lang_label">Sprache</span>
+                    <select id="langSelect" style="width: 80px;" onchange="changeLang(this.value)">
+                        <option value="de">DE</option>
+                        <option value="en">EN</option>
+                    </select>
+                </div>
+                <div class="toggle-item">
+                    <label class="switch" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <span id="themeIcon" class="mode-icon">☀️</span>
+                        <input type="checkbox" id="darkModeToggle" onchange="toggleTheme()" style="display:none;">
+                        <span class="slider" style="display:none;"></span> </label>
+                </div>
+            </div>
+        </div>
+
+        <button id="showInfoBtn" onclick="toggleInfoSection()"
+            style="display: none; margin-bottom: 20px; background-color: var(--accent-color); border-radius: 50%; width: 30px; height: 30px; padding: 0; line-height: 30px; text-align: center;">
+            i
+        </button>
+
+        <div id="infoSection" class="section"
+            style="background-color: rgba(0,123,255,0.05); border-left: 5px solid var(--accent-color); position: relative;">
+            <button onclick="toggleInfoSection()"
+                style="position: absolute; top: 10px; right: 10px; background: none; border: none; color: var(--accent-color); cursor: pointer; font-size: 1.5em; line-height: 1;"
+                title="Info umschalten">
+                &times;
+            </button>
+
+            <p id="descText" style="margin: 0; padding-right: 25px; font-size: 0.95em; white-space: pre-line;"></p>
+
+            <div id="warningBox" class="warning-box">
+                <div style="flex-grow: 1;">
+                    <span data-t="warning_text"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 data-t="sec_gen">Sound Generatoren</h2>
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: bold;"><span data-t="sine_freq">Frequenz</span>:
+                    <input type="number" id="sineFreqInput" value="1000" min="20" max="20000" step="5"
+                        style="width: 90px; display:inline;"> Hz
+                </label>
+                <input type="range" id="sineFreqSlider" class="full-width-slider" min="0" max="100" step="0.1"
+                    value="60.6">
+            </div>
+
+            <div class="controls-row">
+                <button id="btnSine" onclick="toggleSine()" data-t="btn_start_sine">▶ Sinuswelle starten</button>
+                <button id="btnNoise" onclick="toggleNoise()" data-t="btn_start_noise">▶ Pink Noise starten</button>
+                <label style="display: flex; align-items: center; gap: 10px; margin-left: auto;">
+                    <span data-t="volume_label">Gesamtlautstärke</span>:
+                    <input type="range" id="masterVol" min="0" max="1" step="0.01" value="0.5">
+                    <span id="volLabel" style="min-width: 40px; font-weight: bold;">50%</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="top-bar" style="margin-bottom: 10px;">
+                <h2 data-t="sec_filters">Filter-Konfiguration</h2>
+                <div class="settings-group">
+                    <div class="toggle-item">
+                        <span data-t="lock_preamp">Preamp halten</span>
+                        <label class="switch">
+                            <input type="checkbox" id="preampLockToggle" onchange="updateRouting()" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-item">
+                        <span data-t="master_eq">Master EQ</span>
+                        <label class="switch">
+                            <input type="checkbox" id="eqToggle" checked onchange="toggleMasterEQ()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-bar">
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button onclick="addFilter()" data-t="btn_add_filter">+ Filter hinzufügen</button>
+                    <button class="secondary" onclick="addBassBoost()" data-t="btn_bass">+ Bass Boost</button>
+                    <button class="secondary" onclick="addTrebleBoost()" data-t="btn_treble">+ Höhen Boost</button>
+                    <button class="secondary" onclick="document.getElementById('fileInput').click()"
+                        data-t="btn_import">📂 Import (.txt)</button>
+                    <input type="file" id="fileInput" style="display: none;" accept=".txt" onchange="importAPO(event)">
+                </div>
+                <button class="danger" onclick="resetAllFilters()" data-t="btn_reset">🗑 Alle löschen</button>
+            </div>
+
+            <div id="filtersContainer"></div>
+        </div>
+
+        <div class="section">
+            <h2 data-t="sec_vis">Frequenzgang-Visualisierung</h2>
+            <p class="info-text"><span data-t="preamp_label">Benötigter Export-Preamp</span>: <strong
+                    id="preampDisplay">0.00</strong> dB</p>
+            <canvas id="eqGraph" width="1000" height="350"></canvas>
+        </div>
+
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
+            <button onclick="exportAPO()" style="flex: 1; font-size: 16px; padding: 15px;" data-t="btn_export">Equalizer
+                APO Preset exportieren</button>
+            <button class="warning" onclick="exportPoweramp()" style="flex: 1; font-size: 16px; padding: 15px;"
+                data-t="btn_export_pa">Poweramp Preset (.json) exportieren</button>
+        </div>
+    </div>
+
+    <script>
+        const i18n = {
+            de: {
+                title: "Kopfhörer Tuner (PEQ Pro)",
+                lang_label: "Sprache",
+                instructions: "Dieses Werkzeug dient zur präzisen Korrektur von Kopfhörer-Frequenzgängen mittels parametrischer Equalizer (PEQ).\n" +
+                    "• Sinus-Generator: Nutze den variablen Ton, um schmalbandige Resonanzen (Peaks) oder Auslöschungen (Dips) aufzuspüren. Ein Peak sticht durch plötzliche Lautstärkezunahme hervor, ein Dip durch ein deutliches 'Loch'.\n" +
+                    "• Füge an der Stelle der maximalen Ausprägung einen Filter hinzu, um diese auszugleichen. Ein neuer Filter wird automatisch an der aktuellen Stelle des Sinus-Generators gesetzt. Passe die Breite (Q-Faktor) entsprechend der Ausprägung an.\n" +
+                    "• Pink Noise: Verwende das Rauschen, um die tonale Gesamtbalance zu beurteilen. Ziel ist es, die Filter-Pegel so feinjustieren, dass kein Frequenzbereich (Bass, Mitten, Höhen) in der Gesamtheit über- oder unterrepräsentiert wirkt.\n" +
+                    "• Smart Preamp: Solange deine Gesamtlautstärke es zulässt (Headroom), wird der Pegel beim Boosten nicht leiser (kein Ducking). Erst wenn Clipping droht, greift der Limiter automatisch ein.\n" +
+                    "• 'Preamp halten': Verhindert Lautstärkesprünge beim Ausschalten des Master EQ (Bypass) für faire A/B-Vergleiche.\n" +
+                    "• Import: Lade bestehende Konfigurationen im .txt-Format (Equalizer APO). Das Tool erkennt Frequenz, Gain und Q-Faktor automatisch.\n" +
+                    "• Export: Speichere deine Einstellungen für 'Equalizer APO' (.txt) zur Nutzung am PC oder als .json-Datei für 'Poweramp Equalizer' auf Android-Geräten.",
+                sec_gen: "Sound Generatoren",
+                sine_freq: "Frequenz",
+                btn_start_sine: "▶ Sinuswelle starten",
+                btn_stop_sine: "⏸ Sinuswelle stoppen",
+                volume_label: "Gesamtlautstärke",
+                btn_start_noise: "▶ Pink Noise starten",
+                btn_stop_noise: "⏸ Pink Noise stoppen",
+                sec_filters: "Filter-Konfiguration",
+                lock_preamp: "Preamp halten",
+                master_eq: "Master EQ",
+                btn_add_filter: "+ Filter hinzufügen",
+                btn_bass: "+ Bass Boost",
+                btn_treble: "+ Höhen Boost",
+                btn_import: "📂 Import (.txt)",
+                btn_reset: "🗑 Alle löschen",
+                reset_confirm: "Möchtest du wirklich alle Filter löschen?",
+                sec_vis: "Frequenzgang-Visualisierung",
+                preamp_label: "Benötigter Export-Preamp",
+                btn_export: "Equalizer APO Preset exportieren (.txt)",
+                btn_export_pa: "Poweramp Preset exportieren (.json)",
+                f_active: "Aktiv",
+                f_type: "Typ",
+                f_freq: "Frequenz (Hz)",
+                f_gain: "Gain (dB)",
+                f_q: "Q-Faktor",
+                f_remove: "Löschen",
+                type_pk: "Peak",
+                type_ls: "Low Shelf",
+                type_hs: "High Shelf",
+                prompt_name: "Dateiname für Export (ohne Endung):",
+                default_name: "eq_preset",
+                warning_text: "⚠️ ACHTUNG: Hohe Lautstärken und extreme EQ-Einstellungen können Gehörschäden verursachen und deine Hardware beschädigen. Verwende dieses Tool mit Vorsicht, beginne immer bei niedriger Lautstärke und vermeide abruptes Erhöhen der Pegel!",
+            },
+            en: {
+                title: "Headphone Tuner (PEQ Pro)",
+                lang_label: "Language",
+                instructions: "A tool for precise headphone frequency response correction using Parametric EQ (PEQ).\n" +
+                    "• Sine Generator: Use the variable tone to sweep for narrow resonances (peaks) or cancellations (dips). A peak stands out as a sudden increase in volume, while a dip feels like a 'hole' in the sound.\n" +
+                    "• Add a filter at the point where the peak or dip is loudest or quietest. A new filter will automatically be set to the current sine wave frequency. Adjust the bandwidth (Q-factor) according to the width of the peak or dip.\n" +
+                    "• Pink Noise: Use this to judge the overall tonal balance. Fine-tune your filter gains so that no frequency range (bass, mids, treble) feels over- or under-represented in the mix.\n" +
+                    "• Smart Preamp: As long as your master volume allows (headroom), boosting frequencies won't duck the overall audio. A limiter automatically kicks in only to prevent clipping.\n" +
+                    "• Keep Preamp: Prevents volume jumps when bypassing the EQ, allowing for fair A/B comparisons.\n" +
+                    "• Import: Load existing configurations in .txt format (Equalizer APO). The tool automatically detects frequency, gain, and Q-factor.\n" +
+                    "• Export: Save your settings for 'Equalizer APO' (.txt) for PC use or as a .json file for 'Poweramp Equalizer' on Android devices.",
+                sec_gen: "Sound Generators",
+                sine_freq: "Frequency",
+                btn_start_sine: "▶ Start Sine Wave",
+                btn_stop_sine: "⏸ Stop Sine Wave",
+                volume_label: "Master Volume",
+                btn_start_noise: "▶ Start Pink Noise",
+                btn_stop_noise: "⏸ Stop Pink Noise",
+                sec_filters: "Filter Configuration",
+                lock_preamp: "Keep Preamp",
+                master_eq: "Master EQ",
+                btn_add_filter: "+ Add Filter",
+                btn_bass: "+ Bass Boost",
+                btn_treble: "+ Treble Boost",
+                btn_import: "📂 Import (.txt)",
+                btn_reset: "🗑 Clear All",
+                reset_confirm: "Are you sure you want to delete all filters?",
+                sec_vis: "Frequency Response Visualization",
+                preamp_label: "Required Export Preamp",
+                btn_export: "Export Equalizer APO Preset (.txt)",
+                btn_export_pa: "Export Poweramp Preset (.json)",
+                f_active: "Active",
+                f_type: "Type",
+                f_freq: "Freq (Hz)",
+                f_gain: "Gain (dB)",
+                f_q: "Q-Factor",
+                f_remove: "Remove",
+                type_pk: "Peak",
+                type_ls: "Low Shelf",
+                type_hs: "High Shelf",
+                prompt_name: "Filename for export (without extension):",
+                default_name: "eq_preset",
+                warning_text: "⚠️ WARNING: High volumes and extreme EQ settings can cause hearing loss and damage your hardware. Use this tool with caution, always start at low volumes, and avoid abrupt level increases!",
+            }
+        };
+
+        const browserLang = navigator.language || navigator.userLanguage;
+        let currentLang = browserLang.startsWith('de') ? 'de' : 'en';
+
+        let audioCtx = null, preampNode = null, sineOsc = null, sineGain = null, noiseSource = null, noiseGain = null, limiterNode = null;
+        let isSinePlaying = false, isNoisePlaying = false, eqEnabled = true;
+        let exportPreampDb = 0, currentMaxG = 0;
+        let filterIdCounter = 0;
+        const filters = [];
+
+        function changeLang(lang) {
+            currentLang = lang;
+            document.querySelectorAll('[data-t]').forEach(el => {
+                const key = el.getAttribute('data-t');
+                if (i18n[lang][key]) el.innerText = i18n[lang][key];
+            });
+            document.getElementById('descText').innerText = i18n[lang].instructions;
+            document.getElementById('btnSine').innerText = isSinePlaying ? i18n[lang].btn_stop_sine : i18n[lang].btn_start_sine;
+            document.getElementById('btnNoise').innerText = isNoisePlaying ? i18n[lang].btn_stop_noise : i18n[lang].btn_start_noise;
+            renderFilters();
+        }
+
+        function initAudio() {
+            if (audioCtx) return;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            preampNode = audioCtx.createGain();
+
+            // Limiter für Sicherheit auf 0 dBFS
+            limiterNode = audioCtx.createDynamicsCompressor();
+            limiterNode.threshold.value = -0.1;
+            limiterNode.knee.value = 0.0;
+            limiterNode.ratio.value = 20.0;
+            limiterNode.attack.value = 0.001;
+            limiterNode.release.value = 0.1;
+            limiterNode.connect(audioCtx.destination);
+
+            sineOsc = audioCtx.createOscillator();
+            sineGain = audioCtx.createGain();
+            sineGain.gain.value = 0;
+            sineOsc.connect(sineGain);
+            sineOsc.start();
+
+            const bufferSize = audioCtx.sampleRate * 2;
+            const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const output = noiseBuffer.getChannelData(0);
+            let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+            for (let i = 0; i < bufferSize; i++) {
+                let white = Math.random() * 2 - 1;
+                b0 = 0.99886 * b0 + white * 0.0555179; b1 = 0.99332 * b1 + white * 0.0750759;
+                b2 = 0.96900 * b2 + white * 0.1538520; b3 = 0.86650 * b3 + white * 0.3104856;
+                b4 = 0.55000 * b4 + white * 0.5329522; b5 = -0.7616 * b5 - white * 0.0168980;
+                output[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.12;
+                b6 = white * 0.115926;
+            }
+            noiseSource = audioCtx.createBufferSource();
+            noiseSource.buffer = noiseBuffer;
+            noiseSource.loop = true;
+            noiseGain = audioCtx.createGain();
+            noiseGain.gain.value = 0;
+            noiseSource.connect(noiseGain);
+            noiseSource.start();
+
+            sineGain.connect(preampNode);
+            noiseGain.connect(preampNode);
+            updateRouting();
+        }
+
+        class PEQFilter {
+            constructor(type = 'peaking', freq = 1000, gain = 0, q = 3.0, active = true) {
+                this.id = filterIdCounter++;
+                this.active = active;
+                this.type = type;
+                this.freq = freq;
+                this.gain = gain;
+                this.q = q;
+                this.node = null;
+                if (audioCtx) this.initNode();
+            }
+            initNode() {
+                this.node = audioCtx.createBiquadFilter();
+                this.apply();
+            }
+            apply() {
+                if (!this.node) return;
+                this.node.type = this.type;
+                const t = audioCtx.currentTime;
+                this.node.frequency.setTargetAtTime(this.freq, t, 0.01);
+                this.node.gain.setTargetAtTime(this.gain, t, 0.01);
+                this.node.Q.setTargetAtTime(this.q, t, 0.01);
+            }
+        }
+
+        function addFilter() {
+            initAudio();
+            const currentFreq = parseFloat(document.getElementById('sineFreqInput').value) || 1000;
+            filters.push(new PEQFilter('peaking', currentFreq, 0, 3.0));
+            renderFilters();
+            updateRouting();
+            setTimeout(updateGraph, 50);
+        }
+
+        function addBassBoost() {
+            initAudio();
+            filters.push(new PEQFilter('lowshelf', 105, 3.0, 0.71));
+            renderFilters();
+            updateRouting();
+            setTimeout(updateGraph, 50);
+        }
+
+        function addTrebleBoost() {
+            initAudio();
+            filters.push(new PEQFilter('highshelf', 3000, 2.0, 0.71));
+            renderFilters();
+            updateRouting();
+            setTimeout(updateGraph, 50);
+        }
+
+        function resetAllFilters() {
+            if (filters.length === 0) return;
+            if (confirm(i18n[currentLang].reset_confirm)) {
+                filters.forEach(f => { if (f.node) f.node.disconnect(); });
+                filters.length = 0;
+                renderFilters();
+                updateRouting();
+                setTimeout(updateGraph, 50);
+            }
+        }
+
+        function importAPO(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            initAudio();
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const lines = e.target.result.split('\n');
+                const newFilters = [];
+                const filterRegex = /Filter(?:\s*\d+)?:\s*(ON|OFF)\s*(PK|LSC|HSC)\s*Fc\s*([\d.]+)\s*Hz\s*Gain\s*([\d.-]+)\s*dB\s*Q\s*([\d.]+)/i;
+                lines.forEach(line => {
+                    const match = line.match(filterRegex);
+                    if (match) {
+                        const active = match[1].toUpperCase() === 'ON';
+                        const typeMap = { 'PK': 'peaking', 'LSC': 'lowshelf', 'HSC': 'highshelf' };
+                        newFilters.push(new PEQFilter(typeMap[match[2].toUpperCase()] || 'peaking', parseFloat(match[3]), parseFloat(match[4]), parseFloat(match[5]), active));
+                    }
+                });
+
+                if (newFilters.length > 0) {
+                    filters.forEach(f => { if (f.node) f.node.disconnect(); });
+                    filters.length = 0;
+                    filters.push(...newFilters);
+                    renderFilters();
+                    setTimeout(() => {
+                        updateRouting();
+                        updateGraph();
+                    }, 50);
+                }
+                event.target.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        function updateF(id, field, val) {
+            const f = filters.find(x => x.id === id);
+            if (!f) return;
+            if (field === 'active') { f.active = val; updateRouting(); return; }
+            if (field === 'type') {
+                f.type = val;
+                f.q = (val === 'peaking') ? 3.0 : 0.7;
+                renderFilters();
+            }
+            if (field === 'freq') f.freq = Math.max(20, Math.min(20000, parseFloat(val) || 20));
+            if (field === 'gain') f.gain = parseFloat(val) || 0;
+            if (field === 'q') f.q = Math.max(0, Math.min(20, parseFloat(val) || 0));
+
+            f.apply();
+            updateGraph();
+            setTimeout(updateGraph, 50);
+        }
+
+        function removeF(id) {
+            const idx = filters.findIndex(x => x.id === id);
+            if (idx > -1) {
+                if (filters[idx].node) filters[idx].node.disconnect();
+                filters.splice(idx, 1);
+                renderFilters();
+                updateRouting();
+            }
+        }
+
+        function updateRouting() {
+            if (!audioCtx) return;
+            preampNode.disconnect();
+            filters.forEach(f => { if (f.node) f.node.disconnect(); });
+
+            let last = preampNode;
+            if (eqEnabled) {
+                filters.filter(f => f.active && f.node).forEach(f => {
+                    last.connect(f.node);
+                    last = f.node;
+                });
+            }
+            // Ausgabe an den Limiter statt direkt in Destination
+            last.connect(limiterNode);
+
+            updateGraph();
+        }
+
+        function updateAudioPreamp() {
+            if (!audioCtx) return;
+            const lockPreamp = document.getElementById('preampLockToggle').checked;
+            const vol = parseFloat(document.getElementById('masterVol').value);
+
+            // Smart Headroom: Wir nutzen den physischen Spielraum der Master-Lautstärke
+            let peakLinear = Math.pow(10, currentMaxG / 20);
+            let targetGain = 1.0;
+
+            // Wenn Master-Volume + EQ-Peak über 1.0 (Clipping) gehen würde, greift der Preamp ein
+            let expectedPeak = vol * peakLinear;
+            if (expectedPeak > 1.0) {
+                targetGain = 1.0 / expectedPeak;
+            }
+
+            // Bei Bypass (EQ aus)
+            if (!eqEnabled && !lockPreamp) {
+                targetGain = 1.0;
+            }
+
+            preampNode.gain.setTargetAtTime(targetGain, audioCtx.currentTime, 0.02);
+        }
+
+        function updateGraph() {
+            const canvas = document.getElementById('eqGraph');
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const midY = h / 2;
+
+            const isDark = document.body.classList.contains('dark-mode');
+            const gridColor = isDark ? '#444' : '#eee';
+            const textColor = isDark ? '#ccc' : '#666';
+
+            ctx.font = '12px "Segoe UI", sans-serif';
+
+            // 1. Grid & Achsen zeichnen (Hz)
+            ctx.textAlign = 'center';
+            const hzLabels = [20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000];
+            hzLabels.forEach(hz => {
+                const x = w * (Math.log(hz / 10) / Math.log(20000 / 10));
+                ctx.beginPath();
+                ctx.strokeStyle = gridColor;
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, h);
+                ctx.stroke();
+
+                ctx.fillStyle = textColor;
+                ctx.fillText(hz >= 1000 ? (hz / 1000) + 'k' : hz, x, h - 8);
+            });
+
+            // 2. Grid & Achsen zeichnen (dB)
+            ctx.textAlign = 'left';
+            const dbLabels = [-15, -10, -5, 0, 5, 10, 15];
+            dbLabels.forEach(db => {
+                const y = midY - (db * (h / 40));
+                ctx.beginPath();
+                ctx.strokeStyle = db === 0 ? (isDark ? '#666' : '#ccc') : gridColor;
+                ctx.lineWidth = db === 0 ? 2 : 1;
+                ctx.moveTo(0, y);
+                ctx.lineTo(w, y);
+                ctx.stroke();
+
+                ctx.fillStyle = textColor;
+                ctx.fillText((db > 0 ? '+' : '') + db + ' dB', 8, y - 4);
+            });
+
+            if (!audioCtx) return;
+
+            const freqs = new Float32Array(w);
+            for (let i = 0; i < w; i++) freqs[i] = 10 * Math.pow(20000 / 10, i / w);
+
+            const totalMag = new Float32Array(w).fill(1.0);
+            filters.filter(f => f.active && f.node).forEach(f => {
+                const mag = new Float32Array(w), phase = new Float32Array(w);
+                f.node.getFrequencyResponse(freqs, mag, phase);
+                for (let i = 0; i < w; i++) totalMag[i] *= mag[i];
+            });
+
+            let maxG = 0;
+            for (let i = 0; i < w; i++) {
+                const db = 20 * Math.log10(totalMag[i] || 1e-6);
+                if (db > maxG) maxG = db;
+            }
+
+            currentMaxG = maxG;
+            exportPreampDb = maxG > 0 ? -maxG : 0;
+            document.getElementById('preampDisplay').innerText = exportPreampDb.toFixed(2);
+
+            // Wende dynamischen Audio-Preamp in Echtzeit an (Headroom-Logik)
+            updateAudioPreamp();
+
+            const lockPreamp = document.getElementById('preampLockToggle').checked;
+            const showPreampLine = eqEnabled || lockPreamp;
+
+            // Visualisierung zeichnet immer den berechneten absoluten Export-Status
+            ctx.strokeStyle = '#007bff';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            for (let i = 0; i < w; i++) {
+                let db = 20 * Math.log10(totalMag[i] || 1e-6);
+                if (!eqEnabled) db = 0;
+                const finalDb = db + (showPreampLine ? exportPreampDb : 0);
+                const y = midY - (finalDb * (h / 40));
+                if (i === 0) ctx.moveTo(i, y); else ctx.lineTo(i, y);
+            }
+            ctx.stroke();
+        }
+
+        function toggleSine() {
+            initAudio();
+            isSinePlaying = !isSinePlaying;
+            const vol = document.getElementById('masterVol').value;
+            sineGain.gain.setTargetAtTime(isSinePlaying ? vol : 0, audioCtx.currentTime, 0.05);
+            document.getElementById('btnSine').innerText = isSinePlaying ? i18n[currentLang].btn_stop_sine : i18n[currentLang].btn_start_sine;
+        }
+
+        function toggleNoise() {
+            initAudio();
+            isNoisePlaying = !isNoisePlaying;
+            const vol = document.getElementById('masterVol').value;
+            noiseGain.gain.setTargetAtTime(isNoisePlaying ? vol : 0, audioCtx.currentTime, 0.05);
+            document.getElementById('btnNoise').innerText = isNoisePlaying ? i18n[currentLang].btn_stop_noise : i18n[currentLang].btn_start_noise;
+        }
+
+        document.getElementById('masterVol').addEventListener('input', e => {
+            const v = parseFloat(e.target.value);
+            document.getElementById('volLabel').innerText = Math.round(v * 100) + '%';
+            if (audioCtx) {
+                if (isSinePlaying) sineGain.gain.setTargetAtTime(v, audioCtx.currentTime, 0.05);
+                if (isNoisePlaying) noiseGain.gain.setTargetAtTime(v, audioCtx.currentTime, 0.05);
+                updateAudioPreamp(); // Preamp neu bewerten, falls sich der Headroom ändert
+            }
+        });
+
+        const sSlider = document.getElementById('sineFreqSlider');
+        const sInput = document.getElementById('sineFreqInput');
+        sSlider.addEventListener('input', e => {
+            const f = 10 * Math.pow(20000 / 10, e.target.value / 100);
+            sInput.value = Math.round(f);
+            if (sineOsc) sineOsc.frequency.setTargetAtTime(f, audioCtx.currentTime, 0.05);
+        });
+        sInput.addEventListener('input', e => {
+            const f = Math.max(20, Math.min(20000, parseFloat(e.target.value) || 20));
+            sSlider.value = 100 * (Math.log(f / 10) / Math.log(20000 / 10));
+            if (sineOsc) sineOsc.frequency.setTargetAtTime(f, audioCtx.currentTime, 0.05);
+        });
+
+        document.addEventListener('wheel', function (e) {
+            if (document.activeElement.tagName === 'INPUT' && document.activeElement.type === 'number') {
+                e.preventDefault();
+                const el = document.activeElement;
+                const step = parseFloat(el.step) || 1;
+                const dir = e.deltaY < 0 ? 1 : -1;
+                let val = (parseFloat(el.value) || 0) + (step * dir);
+                if (el.hasAttribute('min')) val = Math.max(parseFloat(el.min), val);
+                if (el.hasAttribute('max')) val = Math.min(parseFloat(el.max), val);
+                const decimals = (step.toString().split('.')[1] || []).length;
+                el.value = val.toFixed(decimals);
+                el.dispatchEvent(new Event('input'));
+            }
+        }, { passive: false });
+
+        function renderFilters() {
+            const container = document.getElementById('filtersContainer');
+            const t = i18n[currentLang];
+            container.innerHTML = '';
+            filters.forEach(f => {
+                const div = document.createElement('div');
+                div.className = 'filter-row';
+                if (!f.active) div.style.opacity = '0.5';
+                const qDisabled = (f.type === 'lowshelf' || f.type === 'highshelf');
+                div.innerHTML = `
+                <div class="toggle-item" style="flex-direction:column; align-items:start;">
+                    <label>${t.f_active}</label>
+                    <input type="checkbox" ${f.active ? 'checked' : ''} onchange="updateF(${f.id}, 'active', this.checked)">
+                </div>
+                <div>
+                    <label>${t.f_type}</label>
+                    <select onchange="updateF(${f.id}, 'type', this.value)">
+                        <option value="peaking" ${f.type === 'peaking' ? 'selected' : ''}>${t.type_pk}</option>
+                        <option value="lowshelf" ${f.type === 'lowshelf' ? 'selected' : ''}>${t.type_ls}</option>
+                        <option value="highshelf" ${f.type === 'highshelf' ? 'selected' : ''}>${t.type_hs}</option>
+                    </select>
+                </div>
+                <div>
+                    <label>${t.f_freq}</label>
+                    <input type="number" value="${f.freq}" min="20" max="20000" step="5" oninput="updateF(${f.id}, 'freq', this.value)">
+                </div>
+                <div>
+                    <label>${t.f_gain}</label>
+                    <input type="number" value="${f.gain}" step="0.1" oninput="updateF(${f.id}, 'gain', this.value)">
+                </div>
+                <div>
+                    <label>${t.f_q}</label>
+                    <input type="number" value="${f.q}" min="0" max="20" step="0.05" ${qDisabled ? 'disabled' : ''} oninput="updateF(${f.id}, 'q', this.value)">
+                </div>
+                <button class="danger" onclick="removeF(${f.id})">${t.f_remove}</button>
+            `;
+                container.appendChild(div);
+            });
+        }
+
+        function toggleMasterEQ() { eqEnabled = document.getElementById('eqToggle').checked; updateRouting(); }
+
+        function exportAPO() {
+            const name = prompt(i18n[currentLang].prompt_name, i18n[currentLang].default_name);
+            if (name === null) return;
+
+            let txt = `Preamp: ${exportPreampDb.toFixed(2)} dB\n`;
+            filters.forEach(f => {
+                const typeMap = { peaking: "PK", lowshelf: "LSC", highshelf: "HSC" };
+                txt += `${f.active ? '' : '#'}Filter: ON ${typeMap[f.type]} Fc ${f.freq} Hz Gain ${f.gain} dB Q ${f.q}\n`;
+            });
+            const blob = new Blob([txt], { type: "text/plain" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = `${name || 'eq_preset'}.txt`;
+            a.click();
+        }
+
+        function exportPoweramp() {
+            const name = prompt(i18n[currentLang].prompt_name, i18n[currentLang].default_name);
+            if (name === null) return;
+
+            const paData = [{
+                "name": name || "eq_preset",
+                "preamp": parseFloat(exportPreampDb.toFixed(2)),
+                "parametric": true,
+                "bands": [
+                    {
+                        "type": 0,
+                        "channels": 0,
+                        "frequency": 90,
+                        "q": 0.800000011920929,
+                        "gain": 0.0,
+                        "color": 0
+                    },
+                    {
+                        "type": 1,
+                        "channels": 0,
+                        "frequency": 10000,
+                        "q": 0.6000000238418579,
+                        "gain": 0.0,
+                        "color": 0
+                    }
+                ]
+            }];
+
+            filters.filter(f => f.active).forEach(f => {
+                let pType = 2;
+                if (f.type === 'lowshelf') pType = 0;
+                if (f.type === 'highshelf') pType = 1;
+
+                paData[0].bands.push({
+                    "type": pType,
+                    "channels": 0,
+                    "frequency": parseFloat(f.freq),
+                    "q": parseFloat(f.q),
+                    "gain": parseFloat(f.gain),
+                    "color": 0
+                });
+            });
+
+            const blob = new Blob([JSON.stringify(paData, null, 4)], { type: "application/json" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = `${name || 'eq_preset'}.json`;
+            a.click();
+        }
+
+        function toggleTheme() {
+            const isDark = document.body.classList.toggle('dark-mode');
+            const iconEl = document.getElementById('themeIcon');
+            const checkbox = document.getElementById('darkModeToggle');
+            iconEl.innerText = isDark ? '🌙' : '☀️';
+            if (checkbox) checkbox.checked = isDark;
+        }
+
+        function initTheme() {
+            const isDarkSystem = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (isDarkSystem) {
+                document.body.classList.add('dark-mode');
+                document.getElementById('themeIcon').innerText = '🌙';
+                document.getElementById('darkModeToggle').checked = true;
+            }
+        }
+
+        function toggleInfoSection() {
+            const infoSec = document.getElementById('infoSection');
+            const showBtn = document.getElementById('showInfoBtn');
+
+            if (infoSec.style.display === 'none') {
+                // Öffnen
+                infoSec.style.display = 'block';
+                showBtn.style.display = 'none';
+                sessionStorage.setItem('infoClosed', 'false');
+            } else {
+                // Schließen
+                infoSec.style.display = 'none';
+                showBtn.style.display = 'inline-block';
+                sessionStorage.setItem('infoClosed', 'true');
+            }
+        }
+
+        // Initialisierung beim Laden der Seite
+        window.addEventListener('DOMContentLoaded', () => {
+            const isClosed = sessionStorage.getItem('infoClosed') === 'true';
+            const infoSec = document.getElementById('infoSection');
+            const showBtn = document.getElementById('showInfoBtn');
+
+            if (isClosed) {
+                infoSec.style.display = 'none';
+                showBtn.style.display = 'inline-block';
+            } else {
+                infoSec.style.display = 'block';
+                showBtn.style.display = 'none';
+            }
+        });
+
+        initTheme();
+
+        changeLang(currentLang);
+    </script>
+</body>
+
+</html>
