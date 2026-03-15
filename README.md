@@ -8,7 +8,8 @@
 ---
 
 ## Projektbeschreibung & Anleitung
-
+### Verwendung
+Einfach die Datei headphone_tuner.html herunterladen und anschließend im Browser öffnen.
 ### Kernfunktionen und Durchführung des Tunings
 * **Sinus-Generator und Filter-Erzeugung:** Der Sinus-Generator Erzeugt eine reine Wellenform mit einstellbarer Frequenz, mit der schmalbandige Resonanzen (Peaks) oder Auslöschungen (Dips) aufgespürt werden können.
     * Ein neuer Filter wird automatisch an der aktuellen Stelle des Sinus-Generators gesetzt, um Pegelunterschiede sofort ausgleichen zu können. Finde also den Mittelpunkt und setze einen Filter.
@@ -87,7 +88,8 @@ Das waren die wichtigsten Informationen darüber, wie dieses Tool zu verwenden i
 ---
 
 ## Project Description & Instructions
-
+### Usage
+Simply download the file headphone_tuner.html and open it in your browser.
 ### Core Features and Tuning Process
 * **Sine Generator and Filter Creation:** The sine generator produces a pure waveform at an adjustable frequency, which can be used to detect narrowband resonances (peaks) or cancellations (dips).
     * A new filter is automatically placed at the current position of the sine generator to immediately compensate for level differences. Find the center point and set a filter.
