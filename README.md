@@ -10,7 +10,7 @@
 ## Projektbeschreibung & Anleitung
 ### Verwendung
 Der Headphone Tuner kann mit folgendem Link direkt aufgerufen werden:
-### [➜ Headphone Tuner öffnen](./index.html)
+### [➜ Headphone Tuner öffnen](./headphone_tuner.html)
 Bitte darauf achten, dass bei Verwendung des Tools keine Filter eines laufenden Equalizers wie EqualizerAPO aktiv sind, da diese sonst die Ergebnisse verfälschen - außer natürlich, das Tuning wird direkt im externen EQ durchgeführt und die Filter des Tools werden gar nicht verwendet.
 
 ### Kernfunktionen und Durchführung des Tunings
@@ -93,7 +93,7 @@ Das waren die wichtigsten Informationen darüber, wie dieses Tool zu verwenden i
 ## Project Description & Instructions
 ### Usage
 You can access the Headphone Tuner directly via the following link:
-### [➜ Open Headphone Tuner](./index.html)
+### [➜ Open Headphone Tuner](./headphone_tuner.html)
 Please make sure that no filters from a running equalizer (such as EqualizerAPO) are active when using the tool, as these will otherwise distort the results - unless, of course, the tuning is performed directly in the external EQ and the tool’s filters are not used at all.
 
 ### Core Features and Tuning Process
