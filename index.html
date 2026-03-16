@@ -18,6 +18,8 @@
             --warning-color: #e67e22;
             --warning-hover: #d35400;
             --canvas-bg: #f8f9fa;
+            --pink-color: #e91e62;
+            --pink-hover: #c2185b;
         }
 
         body.dark-mode {
@@ -116,6 +118,13 @@
             background-color: var(--warning-hover);
         }
 
+        button.pink {
+    background-color: var(--pink-color);
+}
+button.pink:hover {
+    background-color: var(--pink-hover);
+}
+
         .section {
             border: 1px solid var(--border-color);
             padding: 20px;
@@ -156,6 +165,15 @@
             border-radius: 4px;
             background: var(--container-bg);
             color: var(--text-color);
+        }
+
+        input[type="file"] {
+            padding: 5px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            width: 100%;
         }
 
         input:disabled {
@@ -251,6 +269,18 @@
             gap: 10px;
         }
 
+        .generator-box {
+            background-color: rgba(0, 0, 0, 0.03);
+            border: 1px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .dark-mode .generator-box {
+            background-color: rgba(255, 255, 255, 0.03);
+        }
+
         .dark-mode #infoSection button {
             color: var(--accent-color) !important;
         }
@@ -264,7 +294,6 @@
             color: white;
             font-weight: bold;
             font-family: serif;
-            /* Klassischer Look für ein Info-i */
             cursor: pointer;
             border: none;
             transition: transform 0.2s, background-color 0.2s;
@@ -274,6 +303,24 @@
         #showInfoBtn:hover {
             transform: scale(1.1);
             background-color: var(--accent-hover);
+        }
+
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.9em;
         }
     </style>
 </head>
@@ -315,6 +362,11 @@
 
             <p id="descText" style="margin: 0; padding-right: 25px; font-size: 0.95em; white-space: pre-line;"></p>
 
+            <p style="text-align: center; margin-top: 10px;">
+                <a href="./README.md" target="_blank" id="documentationLink" data-t="documentation">Zur
+                    Dokumentation</a>
+            </p>
+
             <div id="warningBox" class="warning-box">
                 <div style="flex-grow: 1;">
                     <span data-t="warning_text"></span>
@@ -324,18 +376,46 @@
 
         <div class="section">
             <h2 data-t="sec_gen">Sound Generatoren</h2>
-            <div style="margin-bottom: 15px;">
-                <label style="font-weight: bold;"><span data-t="sine_freq">Frequenz</span>:
-                    <input type="number" id="sineFreqInput" value="1000" min="20" max="20000" step="5"
-                        style="width: 90px; display:inline;"> Hz
-                </label>
-                <input type="range" id="sineFreqSlider" class="full-width-slider" min="0" max="100" step="0.1"
-                    value="60.6">
+
+            <div class="generator-box">
+                <div style="margin-bottom: 15px;">
+                    <label style="font-weight: bold;"><span data-t="sine_freq">Sinus-Frequenz</span>:
+                        <input type="number" id="sineFreqInput" value="1000" min="10" max="20000" step="5"
+                            style="width: 90px; display:inline;"> Hz
+                    </label>
+                    <input type="range" id="sineFreqSlider" class="full-width-slider" min="0" max="100" step="0.1"
+                        value="60.2">
+                </div>
+
+                <div class="controls-row" style="margin-bottom: 15px;">
+                    <button id="btnSine" onclick="toggleSine()" data-t="btn_start_sine">▶ Sinuswelle starten</button>
+
+                    <div
+                        style="display: flex; gap: 8px; align-items: center; margin-left: 15px; padding-left: 15px; border-left: 2px solid var(--border-color);">
+                        <button id="btnSweepDown" class="secondary" onclick="toggleSweep(-1)" data-t="btn_sweep_down">⏪
+                            Sweep Down</button>
+                        <button id="btnSweepUp" class="secondary" onclick="toggleSweep(1)" data-t="btn_sweep_up">⏩ Sweep
+                            Up</button>
+                        <select id="sweepSpeed" style="width: auto; padding: 8px;">
+                            <option value="1.001" data-t="opt_slow">Langsam</option>
+                            <option value="1.003" data-t="opt_med" selected>Mittel</option>
+                            <option value="1.01" data-t="opt_fast">Schnell</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="generator-box">
+                <label style="font-weight: bold; display: block; margin-bottom: 5px;"><span>Audio Player:</span></label>
+                <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                    <input type="file" id="audioFileInput" accept="audio/*" style="flex: 1; min-width: 200px;">
+                    <audio id="audioPlayer" controls
+                        style="flex: 2; min-width: 250px; height: 40px; outline: none;"></audio>
+                </div>
             </div>
 
             <div class="controls-row">
-                <button id="btnSine" onclick="toggleSine()" data-t="btn_start_sine">▶ Sinuswelle starten</button>
-                <button id="btnNoise" onclick="toggleNoise()" data-t="btn_start_noise">▶ Pink Noise starten</button>
+                <button id="btnNoise" class="pink" onclick="toggleNoise()" data-t="btn_start_noise" style="flex: 0.55;">▶ Pink Noise starten</button>
                 <label style="display: flex; align-items: center; gap: 10px; margin-left: auto;">
                     <span data-t="volume_label">Gesamtlautstärke</span>:
                     <input type="range" id="masterVol" min="0" max="1" step="0.01" value="0.5">
@@ -393,6 +473,11 @@
             <button class="warning" onclick="exportPoweramp()" style="flex: 1; font-size: 16px; padding: 15px;"
                 data-t="btn_export_pa">Poweramp Preset (.json) exportieren</button>
         </div>
+
+        <footer>
+            <a href="https://github.com/mm21development/headphonetuner" target="_blank" id="githubLink"
+                data-t="github_link">GitHub Repository</a>
+        </footer>
     </div>
 
     <script>
@@ -404,14 +489,21 @@
                     "• Sinus-Generator: Nutze den variablen Ton, um schmalbandige Resonanzen (Peaks) oder Auslöschungen (Dips) aufzuspüren. Ein Peak sticht durch plötzliche Lautstärkezunahme hervor, ein Dip durch ein deutliches 'Loch'.\n" +
                     "• Füge an der Stelle der maximalen Ausprägung einen Filter hinzu, um diese auszugleichen. Ein neuer Filter wird automatisch an der aktuellen Stelle des Sinus-Generators gesetzt. Passe die Breite (Q-Faktor) entsprechend der Ausprägung an.\n" +
                     "• Pink Noise: Verwende das Rauschen, um die tonale Gesamtbalance zu beurteilen. Ziel ist es, die Filter-Pegel so feinjustieren, dass kein Frequenzbereich (Bass, Mitten, Höhen) in der Gesamtheit über- oder unterrepräsentiert wirkt.\n" +
+                    "• Audio Player: Teste die Filter mit deiner eigenen Musik. Es werden alle gängigen Audioformate unterstützt.\n" +
                     "• Smart Preamp: Solange deine Gesamtlautstärke es zulässt (Headroom), wird der Pegel beim Boosten nicht leiser (kein Ducking). Erst wenn Clipping droht, greift der Limiter automatisch ein.\n" +
                     "• 'Preamp halten': Verhindert Lautstärkesprünge beim Ausschalten des Master EQ (Bypass) für faire A/B-Vergleiche.\n" +
                     "• Import: Lade bestehende Konfigurationen im .txt-Format (Equalizer APO). Das Tool erkennt Frequenz, Gain und Q-Faktor automatisch.\n" +
                     "• Export: Speichere deine Einstellungen für 'Equalizer APO' (.txt) zur Nutzung am PC oder als .json-Datei für 'Poweramp Equalizer' auf Android-Geräten.",
                 sec_gen: "Sound Generatoren",
-                sine_freq: "Frequenz",
+                sine_freq: "Sinus-Frequenz",
                 btn_start_sine: "▶ Sinuswelle starten",
                 btn_stop_sine: "⏸ Sinuswelle stoppen",
+                btn_sweep_down: "⏪ Sweep Down",
+                btn_sweep_up: "⏩ Sweep Up",
+                btn_stop_sweep: "⏹ Sweep Stopp",
+                opt_slow: "Langsam",
+                opt_med: "Mittel",
+                opt_fast: "Schnell",
                 volume_label: "Gesamtlautstärke",
                 btn_start_noise: "▶ Pink Noise starten",
                 btn_stop_noise: "⏸ Pink Noise stoppen",
@@ -440,6 +532,8 @@
                 prompt_name: "Dateiname für Export (ohne Endung):",
                 default_name: "eq_preset",
                 warning_text: "⚠️ ACHTUNG: Hohe Lautstärken und extreme EQ-Einstellungen können Gehörschäden verursachen und deine Hardware beschädigen. Verwende dieses Tool mit Vorsicht, beginne immer bei niedriger Lautstärke und vermeide abruptes Erhöhen der Pegel!",
+                github_link: "GitHub Repository",
+                documentation: "Weitere Informationen in der Dokumentation"
             },
             en: {
                 title: "Headphone Tuner (PEQ Pro)",
@@ -448,14 +542,21 @@
                     "• Sine Generator: Use the variable tone to sweep for narrow resonances (peaks) or cancellations (dips). A peak stands out as a sudden increase in volume, while a dip feels like a 'hole' in the sound.\n" +
                     "• Add a filter at the point where the peak or dip is loudest or quietest. A new filter will automatically be set to the current sine wave frequency. Adjust the bandwidth (Q-factor) according to the width of the peak or dip.\n" +
                     "• Pink Noise: Use this to judge the overall tonal balance. Fine-tune your filter gains so that no frequency range (bass, mids, treble) feels over- or under-represented in the mix.\n" +
+                    "• Audio Player: Test the filters with your own music. All common audio-formats are supported.\n" +
                     "• Smart Preamp: As long as your master volume allows (headroom), boosting frequencies won't duck the overall audio. A limiter automatically kicks in only to prevent clipping.\n" +
                     "• Keep Preamp: Prevents volume jumps when bypassing the EQ, allowing for fair A/B comparisons.\n" +
                     "• Import: Load existing configurations in .txt format (Equalizer APO). The tool automatically detects frequency, gain, and Q-factor.\n" +
                     "• Export: Save your settings for 'Equalizer APO' (.txt) for PC use or as a .json file for 'Poweramp Equalizer' on Android devices.",
                 sec_gen: "Sound Generators",
-                sine_freq: "Frequency",
+                sine_freq: "Sine Frequency",
                 btn_start_sine: "▶ Start Sine Wave",
                 btn_stop_sine: "⏸ Stop Sine Wave",
+                btn_sweep_down: "⏪ Sweep Down",
+                btn_sweep_up: "⏩ Sweep Up",
+                btn_stop_sweep: "⏹ Stop Sweep",
+                opt_slow: "Slow",
+                opt_med: "Medium",
+                opt_fast: "Fast",
                 volume_label: "Master Volume",
                 btn_start_noise: "▶ Start Pink Noise",
                 btn_stop_noise: "⏸ Stop Pink Noise",
@@ -484,6 +585,8 @@
                 prompt_name: "Filename for export (without extension):",
                 default_name: "eq_preset",
                 warning_text: "⚠️ WARNING: High volumes and extreme EQ settings can cause hearing loss and damage your hardware. Use this tool with caution, always start at low volumes, and avoid abrupt level increases!",
+                github_link: "GitHub Repository",
+                documentation: "Further information in the documentation"
             }
         };
 
@@ -491,10 +594,16 @@
         let currentLang = browserLang.startsWith('de') ? 'de' : 'en';
 
         let audioCtx = null, preampNode = null, sineOsc = null, sineGain = null, noiseSource = null, noiseGain = null, limiterNode = null;
+        let mediaSource = null;
         let isSinePlaying = false, isNoisePlaying = false, eqEnabled = true;
         let exportPreampDb = 0, currentMaxG = 0;
         let filterIdCounter = 0;
         const filters = [];
+
+        // Sweep variables
+        let sweepAnimFrame = null;
+        let currentSweepDir = 0; // -1 = down, 1 = up, 0 = off
+        let currentSweepFreq = 1000; // Floating-Point Variable für Präzision
 
         function changeLang(lang) {
             currentLang = lang;
@@ -505,6 +614,10 @@
             document.getElementById('descText').innerText = i18n[lang].instructions;
             document.getElementById('btnSine').innerText = isSinePlaying ? i18n[lang].btn_stop_sine : i18n[lang].btn_start_sine;
             document.getElementById('btnNoise').innerText = isNoisePlaying ? i18n[lang].btn_stop_noise : i18n[lang].btn_start_noise;
+
+            if (currentSweepDir === 1) document.getElementById('btnSweepUp').innerText = i18n[lang].btn_stop_sweep;
+            if (currentSweepDir === -1) document.getElementById('btnSweepDown').innerText = i18n[lang].btn_stop_sweep;
+
             renderFilters();
         }
 
@@ -513,7 +626,7 @@
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             preampNode = audioCtx.createGain();
 
-            // Limiter für Sicherheit auf 0 dBFS
+            // Limiter für Sicherheit auf -0.1 dBFS
             limiterNode = audioCtx.createDynamicsCompressor();
             limiterNode.threshold.value = -0.1;
             limiterNode.knee.value = 0.0;
@@ -521,6 +634,13 @@
             limiterNode.attack.value = 0.001;
             limiterNode.release.value = 0.1;
             limiterNode.connect(audioCtx.destination);
+
+            // Audio Player Node Setup
+            const audioPlayer = document.getElementById('audioPlayer');
+            if (!mediaSource) {
+                mediaSource = audioCtx.createMediaElementSource(audioPlayer);
+                mediaSource.connect(preampNode);
+            }
 
             sineOsc = audioCtx.createOscillator();
             sineGain = audioCtx.createGain();
@@ -553,6 +673,22 @@
             updateRouting();
         }
 
+        document.getElementById('audioFileInput').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const audioPlayer = document.getElementById('audioPlayer');
+                audioPlayer.src = URL.createObjectURL(file);
+                initAudio();
+            }
+        });
+
+        document.getElementById('audioPlayer').addEventListener('play', function () {
+            initAudio();
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        });
+
         class PEQFilter {
             constructor(type = 'peaking', freq = 1000, gain = 0, q = 3.0, active = true) {
                 this.id = filterIdCounter++;
@@ -580,8 +716,8 @@
 
         function addFilter() {
             initAudio();
-            const currentFreq = parseFloat(document.getElementById('sineFreqInput').value) || 1000;
-            filters.push(new PEQFilter('peaking', currentFreq, 0, 3.0));
+            const freqVal = Math.max(10, Math.min(20000, parseFloat(document.getElementById('sineFreqInput').value) || 1000));
+            filters.push(new PEQFilter('peaking', freqVal, 0, 3.0));
             renderFilters();
             updateRouting();
             setTimeout(updateGraph, 50);
@@ -657,7 +793,7 @@
                 f.q = (val === 'peaking') ? 3.0 : 0.7;
                 renderFilters();
             }
-            if (field === 'freq') f.freq = Math.max(20, Math.min(20000, parseFloat(val) || 20));
+            if (field === 'freq') f.freq = Math.max(10, Math.min(20000, parseFloat(val) || 10));
             if (field === 'gain') f.gain = parseFloat(val) || 0;
             if (field === 'q') f.q = Math.max(0, Math.min(20, parseFloat(val) || 0));
 
@@ -688,7 +824,6 @@
                     last = f.node;
                 });
             }
-            // Ausgabe an den Limiter statt direkt in Destination
             last.connect(limiterNode);
 
             updateGraph();
@@ -699,17 +834,14 @@
             const lockPreamp = document.getElementById('preampLockToggle').checked;
             const vol = parseFloat(document.getElementById('masterVol').value);
 
-            // Smart Headroom: Wir nutzen den physischen Spielraum der Master-Lautstärke
             let peakLinear = Math.pow(10, currentMaxG / 20);
             let targetGain = 1.0;
 
-            // Wenn Master-Volume + EQ-Peak über 1.0 (Clipping) gehen würde, greift der Preamp ein
             let expectedPeak = vol * peakLinear;
             if (expectedPeak > 1.0) {
                 targetGain = 1.0 / expectedPeak;
             }
 
-            // Bei Bypass (EQ aus)
             if (!eqEnabled && !lockPreamp) {
                 targetGain = 1.0;
             }
@@ -730,9 +862,9 @@
 
             ctx.font = '12px "Segoe UI", sans-serif';
 
-            // 1. Grid & Achsen zeichnen (Hz)
+            // Hz
             ctx.textAlign = 'center';
-            const hzLabels = [20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000];
+            const hzLabels = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000];
             hzLabels.forEach(hz => {
                 const x = w * (Math.log(hz / 10) / Math.log(20000 / 10));
                 ctx.beginPath();
@@ -745,7 +877,7 @@
                 ctx.fillText(hz >= 1000 ? (hz / 1000) + 'k' : hz, x, h - 8);
             });
 
-            // 2. Grid & Achsen zeichnen (dB)
+            // dB
             ctx.textAlign = 'left';
             const dbLabels = [-15, -10, -5, 0, 5, 10, 15];
             dbLabels.forEach(db => {
@@ -783,13 +915,11 @@
             exportPreampDb = maxG > 0 ? -maxG : 0;
             document.getElementById('preampDisplay').innerText = exportPreampDb.toFixed(2);
 
-            // Wende dynamischen Audio-Preamp in Echtzeit an (Headroom-Logik)
             updateAudioPreamp();
 
             const lockPreamp = document.getElementById('preampLockToggle').checked;
             const showPreampLine = eqEnabled || lockPreamp;
 
-            // Visualisierung zeichnet immer den berechneten absoluten Export-Status
             ctx.strokeStyle = '#007bff';
             ctx.lineWidth = 2.5;
             ctx.beginPath();
@@ -806,40 +936,127 @@
         function toggleSine() {
             initAudio();
             isSinePlaying = !isSinePlaying;
-            const vol = document.getElementById('masterVol').value;
+            const vol = parseFloat(document.getElementById('masterVol').value);
             sineGain.gain.setTargetAtTime(isSinePlaying ? vol : 0, audioCtx.currentTime, 0.05);
             document.getElementById('btnSine').innerText = isSinePlaying ? i18n[currentLang].btn_stop_sine : i18n[currentLang].btn_start_sine;
+            if (!isSinePlaying && currentSweepDir !== 0) stopSweep();
         }
 
         function toggleNoise() {
             initAudio();
             isNoisePlaying = !isNoisePlaying;
-            const vol = document.getElementById('masterVol').value;
+            const vol = parseFloat(document.getElementById('masterVol').value);
             noiseGain.gain.setTargetAtTime(isNoisePlaying ? vol : 0, audioCtx.currentTime, 0.05);
             document.getElementById('btnNoise').innerText = isNoisePlaying ? i18n[currentLang].btn_stop_noise : i18n[currentLang].btn_start_noise;
         }
 
-        document.getElementById('masterVol').addEventListener('input', e => {
-            const v = parseFloat(e.target.value);
+        function toggleSweep(dir) {
+            initAudio();
+            if (!isSinePlaying) {
+                toggleSine();
+            }
+
+            if (currentSweepDir === dir) {
+                stopSweep();
+            } else {
+                currentSweepDir = dir;
+                document.getElementById('btnSweepUp').innerText = dir === 1 ? i18n[currentLang].btn_stop_sweep : i18n[currentLang].btn_sweep_up;
+                document.getElementById('btnSweepDown').innerText = dir === -1 ? i18n[currentLang].btn_stop_sweep : i18n[currentLang].btn_sweep_down;
+
+                currentSweepFreq = parseFloat(document.getElementById('sineFreqInput').value) || 1000;
+
+                if (!sweepAnimFrame) {
+                    doSweep();
+                }
+            }
+        }
+
+        function stopSweep() {
+            currentSweepDir = 0;
+            cancelAnimationFrame(sweepAnimFrame);
+            sweepAnimFrame = null;
+            document.getElementById('btnSweepUp').innerText = i18n[currentLang].btn_sweep_up;
+            document.getElementById('btnSweepDown').innerText = i18n[currentLang].btn_sweep_down;
+        }
+
+        function doSweep() {
+            if (currentSweepDir === 0) return;
+
+            let multiplier = parseFloat(document.getElementById('sweepSpeed').value);
+
+            if (currentSweepDir === 1) { // Up
+                currentSweepFreq *= multiplier;
+                if (currentSweepFreq >= 20000) {
+                    currentSweepFreq = 20000;
+                    stopSweep();
+                }
+            } else { // Down
+                currentSweepFreq /= multiplier;
+                if (currentSweepFreq <= 10) {
+                    currentSweepFreq = 10;
+                    stopSweep();
+                }
+            }
+
+            document.getElementById('sineFreqInput').value = Math.round(currentSweepFreq);
+            const sliderVal = 100 * (Math.log(currentSweepFreq / 10) / Math.log(20000 / 10));
+            document.getElementById('sineFreqSlider').value = sliderVal;
+
+            if (sineOsc) sineOsc.frequency.setTargetAtTime(currentSweepFreq, audioCtx.currentTime, 0.02);
+
+            if (currentSweepDir !== 0) {
+                sweepAnimFrame = requestAnimationFrame(doSweep);
+            }
+        }
+
+        const masterVolSlider = document.getElementById('masterVol');
+        const audioPlayer = document.getElementById('audioPlayer');
+
+        function applyVolumeChanges(v) {
             document.getElementById('volLabel').innerText = Math.round(v * 100) + '%';
             if (audioCtx) {
                 if (isSinePlaying) sineGain.gain.setTargetAtTime(v, audioCtx.currentTime, 0.05);
                 if (isNoisePlaying) noiseGain.gain.setTargetAtTime(v, audioCtx.currentTime, 0.05);
-                updateAudioPreamp(); // Preamp neu bewerten, falls sich der Headroom ändert
+                updateAudioPreamp();
             }
+        }
+
+        masterVolSlider.addEventListener('input', e => {
+            const v = parseFloat(e.target.value);
+            applyVolumeChanges(v);
+            // Player-Lautstärke mitziehen, falls sie abweicht
+            if (Math.abs(audioPlayer.volume - v) > 0.01) {
+                audioPlayer.volume = v;
+            }
+        });
+
+        audioPlayer.addEventListener('volumechange', () => {
+            const v = audioPlayer.volume;
+            if (Math.abs(parseFloat(masterVolSlider.value) - v) > 0.01) {
+                masterVolSlider.value = v;
+                applyVolumeChanges(v);
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            audioPlayer.volume = parseFloat(masterVolSlider.value);
         });
 
         const sSlider = document.getElementById('sineFreqSlider');
         const sInput = document.getElementById('sineFreqInput');
+
         sSlider.addEventListener('input', e => {
             const f = 10 * Math.pow(20000 / 10, e.target.value / 100);
             sInput.value = Math.round(f);
             if (sineOsc) sineOsc.frequency.setTargetAtTime(f, audioCtx.currentTime, 0.05);
+            if (currentSweepDir !== 0) stopSweep();
         });
+
         sInput.addEventListener('input', e => {
-            const f = Math.max(20, Math.min(20000, parseFloat(e.target.value) || 20));
+            const f = Math.max(10, Math.min(20000, parseFloat(e.target.value) || 10));
             sSlider.value = 100 * (Math.log(f / 10) / Math.log(20000 / 10));
             if (sineOsc) sineOsc.frequency.setTargetAtTime(f, audioCtx.currentTime, 0.05);
+            if (currentSweepDir !== 0) stopSweep();
         });
 
         document.addEventListener('wheel', function (e) {
@@ -881,7 +1098,7 @@
                 </div>
                 <div>
                     <label>${t.f_freq}</label>
-                    <input type="number" value="${f.freq}" min="20" max="20000" step="5" oninput="updateF(${f.id}, 'freq', this.value)">
+                    <input type="number" value="${f.freq}" min="10" max="20000" step="5" oninput="updateF(${f.id}, 'freq', this.value)">
                 </div>
                 <div>
                     <label>${t.f_gain}</label>
@@ -987,19 +1204,16 @@
             const showBtn = document.getElementById('showInfoBtn');
 
             if (infoSec.style.display === 'none') {
-                // Öffnen
                 infoSec.style.display = 'block';
                 showBtn.style.display = 'none';
                 sessionStorage.setItem('infoClosed', 'false');
             } else {
-                // Schließen
                 infoSec.style.display = 'none';
                 showBtn.style.display = 'inline-block';
                 sessionStorage.setItem('infoClosed', 'true');
             }
         }
 
-        // Initialisierung beim Laden der Seite
         window.addEventListener('DOMContentLoaded', () => {
             const isClosed = sessionStorage.getItem('infoClosed') === 'true';
             const infoSec = document.getElementById('infoSection');
