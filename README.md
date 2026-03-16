@@ -11,7 +11,7 @@
 ## Projektbeschreibung & Anleitung
 ### Verwendung
 Der Headphone Tuner kann mit folgendem Link direkt aufgerufen werden:
-### [➜ Headphone Tuner öffnen](./index.html)
+### [➜ Headphone Tuner öffnen](https://mm21development.github.io/headphonetuner/)
 Bitte darauf achten, dass bei Verwendung des Tools keine Filter eines laufenden Equalizers wie EqualizerAPO aktiv sind, da diese sonst die Ergebnisse verfälschen - außer natürlich, das Tuning wird direkt im externen EQ durchgeführt und die Filter des Tools werden gar nicht verwendet.
 
 ### Kernfunktionen und Durchführung des Tunings
@@ -96,7 +96,7 @@ Using sine tones and EQ boosts at high volumes can **damage your hearing** and *
 ## Project Description & Instructions
 ### How to Use
 The Headphone Tuner can be accessed directly via the following link:
-### [➜ Open Headphone Tuner](./index.html)
+### [➜ Open Headphone Tuner](https://mm21development.github.io/headphonetuner/)
 Please ensure that no filters from an active equalizer like EqualizerAPO are running while using the tool, as they will otherwise distort the results—unless, of course, you are performing the tuning directly in the external EQ and not using the tool's filters at all.
 
 ### Core Functions & Tuning Process
