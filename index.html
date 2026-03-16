@@ -324,6 +324,7 @@
             font-size: 0.9em;
         }
     </style>
+    <script src="./version.js"></script>
 </head>
 
 <body>
@@ -479,6 +480,7 @@
         <footer>
             <a href="https://github.com/mm21development/headphonetuner" target="_blank" id="githubLink"
                 data-t="github_link">GitHub Repository</a>
+            <p>Headphone Tuner (PEQ Pro) - Version: <span id="versionTag">Ermittle...</span></p>
         </footer>
     </div>
 
@@ -1182,21 +1184,26 @@
             a.download = `${name || 'eq_preset'}.json`;
             a.click();
         }
-
+        
         function toggleTheme() {
             const isDark = document.body.classList.toggle('dark-mode');
             const iconEl = document.getElementById('themeIcon');
             const checkbox = document.getElementById('darkModeToggle');
             iconEl.innerText = isDark ? '🌙' : '☀️';
             if (checkbox) checkbox.checked = isDark;
+
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
         }
 
         function initTheme() {
+            const savedTheme = localStorage.getItem('theme');
             const isDarkSystem = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-            if (isDarkSystem) {
+            const shouldBeDark = savedTheme === 'dark' || (savedTheme === null && isDarkSystem);
+
+            if (shouldBeDark) {
                 document.body.classList.add('dark-mode');
                 document.getElementById('themeIcon').innerText = '🌙';
-                document.getElementById('darkModeToggle').checked = true;
+                if (document.getElementById('darkModeToggle')) document.getElementById('darkModeToggle').checked = true;
             }
         }
 
