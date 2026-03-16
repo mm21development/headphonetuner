@@ -1,7 +1,6 @@
 # 🎧 Headphone Tuner (PEQ Pro)
 
 ## [Directly to the English version](#english-version)
-Übersetze die Beschreibung auf Englisch. Behalte die Inhalte bei, aber Schreibe Sätze bei Bedarf so um, dass sie möglichst natürlich klingen.
 
 > ### ⚠️ Sicherheitshinweis
 > Die Verwendung von Sinustönen und EQ-Boosts bei hohen Lautstärken kann dein **Gehör schädigen** und deine **Hardware (Treiber) überlasten**. Beginne immer bei niedriger Lautstärke und gehe vorsichtig vor.
