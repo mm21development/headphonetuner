@@ -34,6 +34,7 @@ Bitte darauf achten, dass bei Verwendung des Tools keine Filter eines laufenden 
 * **Import von bestehenden Presets** Lade eine bestehende Konfiguration in das Tool, um diese zu optimieren oder zu testen. Hierzu empfehle ich beispielsweise die Presets von oratory1990 (dazu unten mehr). Das Tool erwartet eine `.txt`-Datei im Format für EqualizerAPO. 
     * Achtung: Beachte die Einschränkungen der Filter-Typen, es können nicht alle in EqualizerAPO möglichen Filterarten verwendet werden.
     * Tipp: Implizit ist das Tool dazu in der Lage, EqualizerAPO-Presets für die Verwendung im Poweramp Equalizer umzuwandeln.
+* **Teilen von Presets:** Teile dein erstelltes Preset mit der Community! Schreibe dazu, welchen Kopfhörer du abgestimmt hast, und lass andere deine Einstellungen ausprobieren. Beim Teilen wird ein Link erstellt, über den die Filter direkt geladen werden können, ohne erst eine Datei exportieren und importieren zu müssen.
 
 ### Zusammenfassung der Schritte
 1.  **Suchen:** Scanne mit dem Sinus-Generator das Frequenzband ab.
@@ -119,6 +120,7 @@ Please ensure that no filters from an active equalizer like EqualizerAPO are run
 * **Import Existing Presets:** Load an existing configuration into the tool to optimize or test it. I recommend, for example, using presets from oratory1990 (more on that below). The tool expects a `.txt` file in the EqualizerAPO format.
     * Caution: Be mindful of the filter type limitations; not all filter types possible in EqualizerAPO are supported.
     * Tip: Implicitly, the tool is capable of converting EqualizerAPO presets for use in the Poweramp Equalizer.
+* **Sharing Presets:** Share your preset with the community! Specify which headphones you've tuned, allowing others to test your settings. When sharing, a link is generated that lets users load the filters directly without needing to export and import a file first.
 
 ### Summary of Steps
 1.  **Search:** Scan the frequency band with the sine generator.

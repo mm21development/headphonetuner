@@ -345,6 +345,33 @@
         .dark-mode .share-box {
             background-color: rgba(40, 167, 69, 0.05);
         }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none; /* Standardmäßig aus */
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background: var(--container-bg);
+            color: var(--text-color);
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            border: 1px solid var(--border-color);
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+        }
     </style>
     <script src="./version.js"></script>
 </head>
@@ -357,7 +384,7 @@
             <div class="settings-group">
                 <div class="toggle-item">
                     <span data-t="lang_label">Sprache</span>
-                    <select id="langSelect" style="width: 80px;" onchange="changeLang(this.value)">
+                    <label for="langSelect"></label><select id="langSelect" style="width: 80px;" onchange="changeLang(this.value)">
                         <option value="de">DE</option>
                         <option value="en">EN</option>
                     </select>
@@ -404,11 +431,11 @@
             <div class="generator-box">
                 <div style="margin-bottom: 15px;">
                     <label style="font-weight: bold;"><span data-t="sine_freq">Sinus-Frequenz</span>:
-                        <input type="number" id="sineFreqInput" value="1000" min="10" max="20000" step="5"
+                        <input type="number" id="sineFreqInput" value="440" min="10" max="20000" step="5"
                             style="width: 90px; display:inline;"> Hz
                     </label>
                     <input type="range" id="sineFreqSlider" class="full-width-slider" min="0" max="100" step="0.1"
-                        value="60.2">
+                        value="50">
                 </div>
 
                 <div class="controls-row" style="margin-bottom: 15px;">
@@ -513,6 +540,17 @@
         </footer>
     </div>
 
+    <div id="filterModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 data-t="modal_title">Filter-Preset gefunden</h3>
+            <p data-t="modal_desc">Diese Seite wurde mit voreingestellten Filtern geladen. Möchtest du diese Filter übernehmen und das Audio-System aktivieren?</p>
+            <div class="modal-buttons">
+                <button id="modalYes" onclick="handleModal(true)" data-t="btn_yes" style="padding: 12px 25px;">Ja, Filter laden</button>
+                <button id="modalNo" class="secondary" onclick="handleModal(false)" data-t="btn_no">Nein, verwerfen</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const i18n = {
             de: {
@@ -566,6 +604,10 @@
                 default_name: "eq_preset",
                 warning_text: "⚠️ ACHTUNG: Hohe Lautstärken und extreme EQ-Einstellungen können Gehörschäden verursachen und deine Hardware beschädigen. Verwende dieses Tool mit Vorsicht, beginne immer bei niedriger Lautstärke und vermeide abruptes Erhöhen der Pegel!",
                 github_link: "GitHub Repository",
+                modal_title: "Filter-Preset gefunden",
+                modal_desc: "Diese Seite wurde mit voreingestellten Filtern geladen. Möchtest du diese Filter übernehmen?",
+                btn_yes: "Ja, Filter laden",
+                btn_no: "Nein, verwerfen",
                 btn_share: "Link teilen",
                 share_link_label: "Link zum Teilen:",
                 btn_copy: "Kopieren",
@@ -623,6 +665,10 @@
                 default_name: "eq_preset",
                 warning_text: "⚠️ WARNING: High volumes and extreme EQ settings can cause hearing loss and damage your hardware. Use this tool with caution, always start at low volumes, and avoid abrupt level increases!",
                 github_link: "GitHub Repository",
+                modal_title: "Filter Preset Found",
+                modal_desc: "This page was loaded with preset filters. Would you like to apply these filters?",
+                btn_yes: "Yes, load filters",
+                btn_no: "No, discard",
                 btn_share: "Share Link",
                 share_link_label: "Link to share:",
                 btn_copy: "Copy",
@@ -641,13 +687,15 @@
         let filterIdCounter = 0;
         const filters = [];
 
-        // Sweep variables
         let sweepAnimFrame = null;
-        let currentSweepDir = 0; // -1 = down, 1 = up, 0 = off
-        let currentSweepFreq = 1000; // Floating-Point Variable für Präzision
+        let currentSweepDir = 0;
+        let currentSweepFreq = 440;
 
         function changeLang(lang) {
             currentLang = lang;
+            localStorage.setItem('lang', lang);
+            const langSelect = document.getElementById('langSelect');
+            if (langSelect) langSelect.value = lang;
             document.querySelectorAll('[data-t]').forEach(el => {
                 const key = el.getAttribute('data-t');
                 if (i18n[lang][key]) el.innerText = i18n[lang][key];
@@ -666,8 +714,6 @@
             if (audioCtx) return;
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             preampNode = audioCtx.createGain();
-
-            // Limiter für Sicherheit auf -0.1 dBFS
             limiterNode = audioCtx.createDynamicsCompressor();
             limiterNode.threshold.value = -0.1;
             limiterNode.knee.value = 0.0;
@@ -730,7 +776,7 @@
         });
 
         class PEQFilter {
-            constructor(type = 'peaking', freq = 1000, gain = 0, q = 3.0, active = true) {
+            constructor(type = 'peaking', freq = 440, gain = 0, q = 3.0, active = true) {
                 this.id = filterIdCounter++;
                 this.active = active;
                 this.type = type;
@@ -742,21 +788,28 @@
             }
             initNode() {
                 this.node = audioCtx.createBiquadFilter();
-                this.apply();
+                this.apply(true);
             }
-            apply() {
+            apply(immediate = false) {
                 if (!this.node) return;
                 this.node.type = this.type;
-                const t = audioCtx.currentTime;
-                this.node.frequency.setTargetAtTime(this.freq, t, 0.01);
-                this.node.gain.setTargetAtTime(this.gain, t, 0.01);
-                this.node.Q.setTargetAtTime(this.q, t, 0.01);
+
+                if (immediate || (audioCtx && audioCtx.state === 'suspended')) {
+                    this.node.frequency.value = this.freq;
+                    this.node.gain.value = this.gain;
+                    this.node.Q.value = this.q;
+                } else {
+                    const t = audioCtx.currentTime;
+                    this.node.frequency.setTargetAtTime(this.freq, t, 0.01);
+                    this.node.gain.setTargetAtTime(this.gain, t, 0.01);
+                    this.node.Q.setTargetAtTime(this.q, t, 0.01);
+                }
             }
         }
 
         function addFilter() {
             initAudio();
-            const freqVal = Math.max(10, Math.min(20000, parseFloat(document.getElementById('sineFreqInput').value) || 1000));
+            const freqVal = Math.max(10, Math.min(20000, parseFloat(document.getElementById('sineFreqInput').value) || 440));
             filters.push(new PEQFilter('peaking', freqVal, 0, 3.0));
             renderFilters();
             updateRouting();
@@ -886,7 +939,11 @@
                 targetGain = 1.0;
             }
 
-            preampNode.gain.setTargetAtTime(targetGain, audioCtx.currentTime, 0.02);
+            if (audioCtx.state === 'suspended') {
+                preampNode.gain.value = targetGain;
+            } else {
+                preampNode.gain.setTargetAtTime(targetGain, audioCtx.currentTime, 0.02);
+            }
         }
 
         function updateGraph() {
@@ -975,18 +1032,34 @@
 
         function toggleSine() {
             initAudio();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
             isSinePlaying = !isSinePlaying;
             const vol = parseFloat(document.getElementById('masterVol').value);
-            sineGain.gain.setTargetAtTime(isSinePlaying ? vol : 0, audioCtx.currentTime, 0.05);
+
+            if (audioCtx.state === 'suspended') {
+                sineGain.gain.value = isSinePlaying ? vol : 0;
+            } else {
+                sineGain.gain.setTargetAtTime(isSinePlaying ? vol : 0, audioCtx.currentTime, 0.05);
+            }
+
             document.getElementById('btnSine').innerText = isSinePlaying ? i18n[currentLang].btn_stop_sine : i18n[currentLang].btn_start_sine;
             if (!isSinePlaying && currentSweepDir !== 0) stopSweep();
         }
 
         function toggleNoise() {
             initAudio();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
             isNoisePlaying = !isNoisePlaying;
             const vol = parseFloat(document.getElementById('masterVol').value);
-            noiseGain.gain.setTargetAtTime(isNoisePlaying ? vol : 0, audioCtx.currentTime, 0.05);
+
+            if (audioCtx.state === 'suspended') {
+                noiseGain.gain.value = isNoisePlaying ? vol : 0;
+            } else {
+                noiseGain.gain.setTargetAtTime(isNoisePlaying ? vol : 0, audioCtx.currentTime, 0.05);
+            }
+
             document.getElementById('btnNoise').innerText = isNoisePlaying ? i18n[currentLang].btn_stop_noise : i18n[currentLang].btn_start_noise;
         }
 
@@ -1003,7 +1076,7 @@
                 document.getElementById('btnSweepUp').innerText = dir === 1 ? i18n[currentLang].btn_stop_sweep : i18n[currentLang].btn_sweep_up;
                 document.getElementById('btnSweepDown').innerText = dir === -1 ? i18n[currentLang].btn_stop_sweep : i18n[currentLang].btn_sweep_down;
 
-                currentSweepFreq = parseFloat(document.getElementById('sineFreqInput').value) || 1000;
+                currentSweepFreq = parseFloat(document.getElementById('sineFreqInput').value) || 440;
 
                 if (!sweepAnimFrame) {
                     doSweep();
@@ -1039,8 +1112,7 @@
             }
 
             document.getElementById('sineFreqInput').value = Math.round(currentSweepFreq);
-            const sliderVal = 100 * (Math.log(currentSweepFreq / 10) / Math.log(20000 / 10));
-            document.getElementById('sineFreqSlider').value = sliderVal;
+            document.getElementById('sineFreqSlider').value = 100 * (Math.log(currentSweepFreq / 10) / Math.log(20000 / 10));
 
             if (sineOsc) sineOsc.frequency.setTargetAtTime(currentSweepFreq, audioCtx.currentTime, 0.02);
 
@@ -1294,8 +1366,6 @@
             const eqParam = params.get('eq');
             
             if (eqParam) {
-                initAudio(); 
-                
                 const filterStrings = eqParam.split('~');
                 filters.forEach(f => { if (f.node) f.node.disconnect(); });
                 filters.length = 0;
@@ -1320,8 +1390,6 @@
                     renderFilters();
                     updateRouting();
                     setTimeout(updateGraph, 50);
-                    // URL bereinigen
-                    window.history.replaceState({}, document.title, window.location.pathname);
                 }
             }
         }
@@ -1331,6 +1399,9 @@
             const infoSec = document.getElementById('infoSection');
             const showBtn = document.getElementById('showInfoBtn');
 
+            initTheme();
+            changeLang(currentLang);
+
             if (isClosed) {
                 infoSec.style.display = 'none';
                 showBtn.style.display = 'inline-block';
@@ -1339,12 +1410,32 @@
                 showBtn.style.display = 'none';
             }
 
-            loadFiltersFromURL();
+            checkUrlParams();
         });
 
-        initTheme();
-        
-        changeLang(currentLang);
+        function checkUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+
+            if (params.has('eq') && params.get('eq').trim() !== "") {
+                document.getElementById('filterModal').style.display = 'flex';
+            } else {
+                updateGraph();
+            }
+        }
+
+        function handleModal(confirmed) {
+            document.getElementById('filterModal').style.display = 'none';
+            initAudio();
+            if (confirmed) {
+                loadFiltersFromURL();
+                console.log("Filter aus URL wurden aktiviert.");
+            } else {
+                // Entferne die Parameter, falls das Preset nicht geladen wurde
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+            updateRouting();
+            updateGraph();
+        }
     </script>
 </body>
 
