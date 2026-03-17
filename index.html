@@ -126,6 +126,15 @@
             background-color: var(--pink-hover);
         }
 
+        button.success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        button.success:hover {
+            background-color: #218838;
+        }
+
         .section {
             border: 1px solid var(--border-color);
             padding: 20px;
@@ -323,6 +332,19 @@
             border-top: 1px solid var(--border-color);
             font-size: 0.9em;
         }
+
+        .share-box {
+            display: none;
+            background-color: rgba(40, 167, 69, 0.1);
+            border: 1px solid #28a745;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .dark-mode .share-box {
+            background-color: rgba(40, 167, 69, 0.05);
+        }
     </style>
     <script src="./version.js"></script>
 </head>
@@ -471,10 +493,17 @@
         </div>
 
         <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
-            <button onclick="exportAPO()" style="flex: 1; font-size: 16px; padding: 15px;" data-t="btn_export">Equalizer
-                APO Preset exportieren</button>
-            <button class="warning" onclick="exportPoweramp()" style="flex: 1; font-size: 16px; padding: 15px;"
-                data-t="btn_export_pa">Poweramp Preset (.json) exportieren</button>
+            <button onclick="exportAPO()" style="flex: 1; font-size: 16px; padding: 15px;" data-t="btn_export">Equalizer APO Preset exportieren</button>
+            <button class="warning" onclick="exportPoweramp()" style="flex: 1; font-size: 16px; padding: 15px;" data-t="btn_export_pa">Poweramp Preset (.json) exportieren</button>
+            <button class="success" onclick="generateShareLink()" style="flex: 1; font-size: 16px; padding: 15px;" data-t="btn_share">Link teilen</button>
+        </div>
+
+        <div id="shareBox" class="share-box">
+            <label style="font-weight: bold; margin-bottom: 5px; display: block;" data-t="share_link_label">Dein Link:</label>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="shareLinkInput" readonly style="flex: 1; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--container-bg); color: var(--text-color);">
+                <button onclick="copyShareLink()" class="success" data-t="btn_copy" style="padding: 10px 20px;">Kopieren</button>
+            </div>
         </div>
 
         <footer>
@@ -537,6 +566,10 @@
                 default_name: "eq_preset",
                 warning_text: "⚠️ ACHTUNG: Hohe Lautstärken und extreme EQ-Einstellungen können Gehörschäden verursachen und deine Hardware beschädigen. Verwende dieses Tool mit Vorsicht, beginne immer bei niedriger Lautstärke und vermeide abruptes Erhöhen der Pegel!",
                 github_link: "GitHub Repository",
+                btn_share: "Link teilen",
+                share_link_label: "Link zum Teilen:",
+                btn_copy: "Kopieren",
+                no_filters: "Keine Filter zum Teilen vorhanden.",
                 documentation: "Weitere Informationen in der Dokumentation"
             },
             en: {
@@ -590,6 +623,10 @@
                 default_name: "eq_preset",
                 warning_text: "⚠️ WARNING: High volumes and extreme EQ settings can cause hearing loss and damage your hardware. Use this tool with caution, always start at low volumes, and avoid abrupt level increases!",
                 github_link: "GitHub Repository",
+                btn_share: "Share Link",
+                share_link_label: "Link to share:",
+                btn_copy: "Copy",
+                no_filters: "No filters to share.",
                 documentation: "Further information in the documentation"
             }
         };
@@ -1222,6 +1259,73 @@
             }
         }
 
+        function generateShareLink() {
+            if (filters.length === 0) {
+                alert(i18n[currentLang].no_filters);
+                return;
+            }
+
+            const eqData = filters.map(f => {
+                const t = f.type === 'peaking' ? 'p' : (f.type === 'lowshelf' ? 'l' : 'h');
+                return `${t},${f.freq},${f.gain},${f.q},${f.active ? 1 : 0}`;
+            }).join('~');
+
+            const baseURL = "https://mm21development.github.io/headphonetuner/index.html";
+            const shareURL = `${baseURL}?eq=${encodeURIComponent(eqData)}`;
+
+            document.getElementById('shareBox').style.display = 'block';
+            document.getElementById('shareLinkInput').value = shareURL;
+        }
+
+        function copyShareLink() {
+            const input = document.getElementById('shareLinkInput');
+            input.select();
+            input.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(input.value).then(() => {
+                const btn = document.querySelector('#shareBox button');
+                const originalText = btn.innerText;
+                btn.innerText = "✓";
+                setTimeout(() => { btn.innerText = originalText; }, 2000);
+            });
+        }
+
+        function loadFiltersFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            const eqParam = params.get('eq');
+            
+            if (eqParam) {
+                initAudio(); 
+                
+                const filterStrings = eqParam.split('~');
+                filters.forEach(f => { if (f.node) f.node.disconnect(); });
+                filters.length = 0;
+                
+                filterStrings.forEach(fs => {
+                    const parts = fs.split(',');
+                    if (parts.length === 5) {
+                        const typeMap = { 'p': 'peaking', 'l': 'lowshelf', 'h': 'highshelf' };
+                        const type = typeMap[parts[0]] || 'peaking';
+                        const freq = parseFloat(parts[1]);
+                        const gain = parseFloat(parts[2]);
+                        const q = parseFloat(parts[3]);
+                        const active = parts[4] === '1';
+                        
+                        if (!isNaN(freq) && !isNaN(gain) && !isNaN(q)) {
+                            filters.push(new PEQFilter(type, freq, gain, q, active));
+                        }
+                    }
+                });
+                
+                if (filters.length > 0) {
+                    renderFilters();
+                    updateRouting();
+                    setTimeout(updateGraph, 50);
+                    // URL bereinigen
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+            }
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             const isClosed = sessionStorage.getItem('infoClosed') === 'true';
             const infoSec = document.getElementById('infoSection');
@@ -1234,10 +1338,12 @@
                 infoSec.style.display = 'block';
                 showBtn.style.display = 'none';
             }
+
+            loadFiltersFromURL();
         });
 
         initTheme();
-
+        
         changeLang(currentLang);
     </script>
 </body>
