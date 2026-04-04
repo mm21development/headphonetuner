@@ -130,7 +130,8 @@ const i18n = {
 const browserLang = navigator.language || navigator.userLanguage;
 let currentLang = browserLang.startsWith('de') ? 'de' : 'en';
 
-let audioCtx = null, preampNode = null, sineOsc = null, sineGain = null, noiseSource = null, noiseGain = null, limiterNode = null;
+let audioCtx = null, preampNode = null, sineOsc = null, sineGain = null, noiseSource = null, noiseGain = null,
+    limiterNode = null;
 let mediaSource = null;
 let isSinePlaying = false, isNoisePlaying = false, eqEnabled = true;
 let exportPreampDb = 0, currentMaxG = 0;
@@ -190,9 +191,12 @@ function initAudio() {
     let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
     for (let i = 0; i < bufferSize; i++) {
         let white = Math.random() * 2 - 1;
-        b0 = 0.99886 * b0 + white * 0.0555179; b1 = 0.99332 * b1 + white * 0.0750759;
-        b2 = 0.96900 * b2 + white * 0.1538520; b3 = 0.86650 * b3 + white * 0.3104856;
-        b4 = 0.55000 * b4 + white * 0.5329522; b5 = -0.7616 * b5 - white * 0.0168980;
+        b0 = 0.99886 * b0 + white * 0.0555179;
+        b1 = 0.99332 * b1 + white * 0.0750759;
+        b2 = 0.96900 * b2 + white * 0.1538520;
+        b3 = 0.86650 * b3 + white * 0.3104856;
+        b4 = 0.55000 * b4 + white * 0.5329522;
+        b5 = -0.7616 * b5 - white * 0.0168980;
         output[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.12;
         b6 = white * 0.115926;
     }
@@ -236,10 +240,12 @@ class PEQFilter {
         this.node = null;
         if (audioCtx) this.initNode();
     }
+
     initNode() {
         this.node = audioCtx.createBiquadFilter();
         this.apply(true);
     }
+
     apply(immediate = false) {
         if (!this.node) return;
         this.node.type = this.type;
@@ -285,7 +291,9 @@ function addTrebleBoost() {
 function resetAllFilters() {
     if (filters.length === 0) return;
     if (confirm(i18n[currentLang].reset_confirm)) {
-        filters.forEach(f => { if (f.node) f.node.disconnect(); });
+        filters.forEach(f => {
+            if (f.node) f.node.disconnect();
+        });
         filters.length = 0;
         renderFilters();
         updateRouting();
@@ -302,18 +310,26 @@ function importAPO(event) {
     reader.onload = function (e) {
         const lines = e.target.result.split('\n');
         const newFilters = [];
-        const filterRegex = /Filter(?:\s*\d+)?:\s*(ON|OFF)\s*(PK|LSC|HSC)\s*Fc\s*([\d.]+)\s*Hz\s*Gain\s*([\d.-]+)\s*dB\s*Q\s*([\d.]+)/i;
+        const filterRegex = /Filter(?:\s*\d+)?:\s*(?:ON\s*)?(PK|LSC|LS|HSC|HS)\s*Fc\s*([\d.]+)\s*Hz\s*Gain\s*([\d.-]+)\s*dB\s*Q\s*([\d.]+)/i;
         lines.forEach(line => {
             const match = line.match(filterRegex);
             if (match) {
-                const active = match[1].toUpperCase() === 'ON';
-                const typeMap = { 'PK': 'peaking', 'LSC': 'lowshelf', 'HSC': 'highshelf' };
-                newFilters.push(new PEQFilter(typeMap[match[2].toUpperCase()] || 'peaking', parseFloat(match[3]), parseFloat(match[4]), parseFloat(match[5]), active));
+                const active = !line.trim().startsWith('#');
+                const typeMap = {
+                    'PK': 'peaking',
+                    'LSC': 'lowshelf',
+                    'LS': 'lowshelf',
+                    'HSC': 'highshelf',
+                    'HS': 'highshelf'
+                };
+                newFilters.push(new PEQFilter(typeMap[match[1].toUpperCase()] || 'peaking', parseFloat(match[2]), parseFloat(match[3]), parseFloat(match[4]), active));
             }
         });
 
         if (newFilters.length > 0) {
-            filters.forEach(f => { if (f.node) f.node.disconnect(); });
+            filters.forEach(f => {
+                if (f.node) f.node.disconnect();
+            });
             filters.length = 0;
             filters.push(...newFilters);
             renderFilters();
@@ -330,7 +346,11 @@ function importAPO(event) {
 function updateF(id, field, val) {
     const f = filters.find(x => x.id === id);
     if (!f) return;
-    if (field === 'active') { f.active = val; updateRouting(); return; }
+    if (field === 'active') {
+        f.active = val;
+        updateRouting();
+        return;
+    }
     if (field === 'type') {
         f.type = val;
         f.q = (val === 'peaking') ? 3.0 : 0.7;
@@ -358,7 +378,9 @@ function removeF(id) {
 function updateRouting() {
     if (!audioCtx) return;
     preampNode.disconnect();
-    filters.forEach(f => { if (f.node) f.node.disconnect(); });
+    filters.forEach(f => {
+        if (f.node) f.node.disconnect();
+    });
 
     let last = preampNode;
     if (eqEnabled) {
@@ -634,7 +656,7 @@ document.addEventListener('wheel', function (e) {
         el.value = val.toFixed(decimals);
         el.dispatchEvent(new Event('input'));
     }
-}, { passive: false });
+}, {passive: false});
 
 function renderFilters() {
     const container = document.getElementById('filtersContainer');
@@ -643,7 +665,7 @@ function renderFilters() {
     filters.forEach(f => {
         const div = document.createElement('div');
         div.className = 'filter-row';
-        if (!f.active) div.style.opacity = '0.5';
+        //if (!f.active) div.style.opacity = '0.5';
         const qDisabled = (f.type === 'lowshelf' || f.type === 'highshelf');
         div.innerHTML = `
                 <div class="toggle-item" style="flex-direction:column; align-items:start;">
@@ -676,7 +698,10 @@ function renderFilters() {
     });
 }
 
-function toggleMasterEQ() { eqEnabled = document.getElementById('eqToggle').checked; updateRouting(); }
+function toggleMasterEQ() {
+    eqEnabled = document.getElementById('eqToggle').checked;
+    updateRouting();
+}
 
 function exportAPO() {
     const name = prompt(i18n[currentLang].prompt_name, i18n[currentLang].default_name);
@@ -684,10 +709,10 @@ function exportAPO() {
 
     let txt = `Preamp: ${exportPreampDb.toFixed(2)} dB\n`;
     filters.forEach(f => {
-        const typeMap = { peaking: "PK", lowshelf: "LSC", highshelf: "HSC" };
+        const typeMap = {peaking: "PK", lowshelf: "LSC", highshelf: "HSC"};
         txt += `${f.active ? '' : '#'}Filter: ON ${typeMap[f.type]} Fc ${f.freq} Hz Gain ${f.gain} dB Q ${f.q}\n`;
     });
-    const blob = new Blob([txt], { type: "text/plain" });
+    const blob = new Blob([txt], {type: "text/plain"});
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = `${name || 'eq_preset'}.txt`;
@@ -737,7 +762,7 @@ function exportPoweramp() {
         });
     });
 
-    const blob = new Blob([JSON.stringify(paData, null, 4)], { type: "application/json" });
+    const blob = new Blob([JSON.stringify(paData, null, 4)], {type: "application/json"});
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = `${name || 'eq_preset'}.json`;
@@ -807,7 +832,9 @@ function copyShareLink() {
         const btn = document.querySelector('#shareBox button');
         const originalText = btn.innerText;
         btn.innerText = "✓";
-        setTimeout(() => { btn.innerText = originalText; }, 2000);
+        setTimeout(() => {
+            btn.innerText = originalText;
+        }, 2000);
     });
 }
 
@@ -817,13 +844,15 @@ function loadFiltersFromURL() {
 
     if (eqParam) {
         const filterStrings = eqParam.split('~');
-        filters.forEach(f => { if (f.node) f.node.disconnect(); });
+        filters.forEach(f => {
+            if (f.node) f.node.disconnect();
+        });
         filters.length = 0;
 
         filterStrings.forEach(fs => {
             const parts = fs.split(',');
             if (parts.length === 5) {
-                const typeMap = { 'p': 'peaking', 'l': 'lowshelf', 'h': 'highshelf' };
+                const typeMap = {'p': 'peaking', 'l': 'lowshelf', 'h': 'highshelf'};
                 const type = typeMap[parts[0]] || 'peaking';
                 const freq = parseFloat(parts[1]);
                 const gain = parseFloat(parts[2]);
