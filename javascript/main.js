@@ -1,135 +1,3 @@
-const i18n = {
-    de: {
-        title: "Kopfhörer Tuner (PEQ Pro)",
-        lang_label: "Sprache",
-        instructions: "Dieses Werkzeug dient zur präzisen Korrektur von Kopfhörer-Frequenzgängen mittels parametrischer Equalizer (PEQ).\n" +
-            "• Sinus-Generator: Nutze den variablen Ton, um schmalbandige Resonanzen (Peaks) oder Auslöschungen (Dips) aufzuspüren. Ein Peak sticht durch plötzliche Lautstärkezunahme hervor, ein Dip durch ein deutliches 'Loch'.\n" +
-            "• Füge an der Stelle der maximalen Ausprägung einen Filter hinzu, um diese auszugleichen. Ein neuer Filter wird automatisch an der aktuellen Stelle des Sinus-Generators gesetzt. Passe die Breite (Q-Faktor) entsprechend der Ausprägung an.\n" +
-            "• Pink Noise: Verwende das Rauschen, um die tonale Gesamtbalance zu beurteilen. Ziel ist es, die Filter-Pegel so feinjustieren, dass kein Frequenzbereich (Bass, Mitten, Höhen) in der Gesamtheit über- oder unterrepräsentiert wirkt.\n" +
-            "• Audio Player: Teste die Filter mit deiner eigenen Musik. Es werden alle gängigen Audioformate unterstützt.\n" +
-            "• Smart Preamp: Solange deine Gesamtlautstärke es zulässt (Headroom), wird der Pegel beim Boosten nicht leiser (kein Ducking). Erst wenn Clipping droht, greift der Limiter automatisch ein.\n" +
-            "• 'Preamp halten': Verhindert Lautstärkesprünge beim Ausschalten des Master EQ (Bypass) für faire A/B-Vergleiche.\n" +
-            "• Import: Lade bestehende Konfigurationen im .txt-Format (Equalizer APO). Das Tool erkennt Frequenz, Gain und Q-Faktor automatisch.\n" +
-            "• Export: Speichere deine Einstellungen für 'Equalizer APO' (.txt) zur Nutzung am PC oder als .json-Datei für 'Poweramp Equalizer' auf Android-Geräten.",
-        sec_gen: "Sound Generatoren",
-        sine_freq: "Sinus-Frequenz",
-        btn_start_sine: "▶ Sinuswelle starten",
-        btn_stop_sine: "⏸ Sinuswelle stoppen",
-        btn_sweep_down: "⏪ Sweep Down",
-        btn_sweep_up: "⏩ Sweep Up",
-        btn_stop_sweep: "⏹ Sweep Stopp",
-        opt_slow: "Langsam",
-        opt_med: "Mittel",
-        opt_fast: "Schnell",
-        volume_label: "Gesamtlautstärke",
-        btn_start_noise: "▶ Pink Noise starten",
-        btn_stop_noise: "⏸ Pink Noise stoppen",
-        sec_filters: "Filter-Konfiguration",
-        lock_preamp: "Preamp halten",
-        master_eq: "Master EQ",
-        btn_add_filter: "+ Filter hinzufügen",
-        btn_bass: "+ Bass Boost",
-        btn_treble: "+ Höhen Boost",
-        btn_import: "📂 Import (.txt)",
-        btn_reset: "🗑 Alle löschen",
-        reset_confirm: "Möchtest du wirklich alle Filter löschen?",
-        sec_vis: "Frequenzgang-Visualisierung",
-        preamp_label: "Benötigter Export-Preamp",
-        btn_export: "Equalizer APO Preset exportieren (.txt)",
-        btn_export_pa: "Poweramp Preset exportieren (.json)",
-        f_active: "Aktiv",
-        f_type: "Typ",
-        f_freq: "Frequenz (Hz)",
-        f_gain: "Gain (dB)",
-        f_q: "Q-Faktor",
-        f_remove: "Löschen",
-        type_pk: "Peak",
-        type_ls: "Low Shelf",
-        type_hs: "High Shelf",
-        prompt_name: "Dateiname für Export (ohne Endung):",
-        default_name: "eq_preset",
-        warning_text: "⚠️ ACHTUNG: Hohe Lautstärken und extreme EQ-Einstellungen können Gehörschäden verursachen und deine Hardware beschädigen. Verwende dieses Tool mit Vorsicht, beginne immer bei niedriger Lautstärke und vermeide abruptes Erhöhen der Pegel!",
-        github_link: "GitHub Repository",
-        modal_title: "Filter-Preset gefunden",
-        modal_desc: "Diese Seite wurde mit voreingestellten Filtern geladen. Möchtest du diese Filter übernehmen?",
-        btn_yes: "Ja, Filter laden",
-        btn_no: "Nein, verwerfen",
-        btn_share: "Link teilen",
-        share_link_label: "Link zum Teilen:",
-        btn_copy: "Kopieren",
-        no_filters: "Keine Filter zum Teilen vorhanden.",
-        documentation: "Weitere Informationen in der Dokumentation",
-        warning_modal_title: "Bitte das Gerät drehen",
-        warning_modal_desc: "Der Bildschirm ist zu schmal, um das Tool zu verwenden. Drehe das Gerät in den horizontalen Modus, wenn möglich."
-    },
-    en: {
-        title: "Headphone Tuner (PEQ Pro)",
-        lang_label: "Language",
-        instructions: "A tool for precise headphone frequency response correction using Parametric EQ (PEQ).\n" +
-            "• Sine Generator: Use the variable tone to sweep for narrow resonances (peaks) or cancellations (dips). A peak stands out as a sudden increase in volume, while a dip feels like a 'hole' in the sound.\n" +
-            "• Add a filter at the point where the peak or dip is loudest or quietest. A new filter will automatically be set to the current sine wave frequency. Adjust the bandwidth (Q-factor) according to the width of the peak or dip.\n" +
-            "• Pink Noise: Use this to judge the overall tonal balance. Fine-tune your filter gains so that no frequency range (bass, mids, treble) feels over- or under-represented in the mix.\n" +
-            "• Audio Player: Test the filters with your own music. All common audio-formats are supported.\n" +
-            "• Smart Preamp: As long as your master volume allows (headroom), boosting frequencies won't duck the overall audio. A limiter automatically kicks in only to prevent clipping.\n" +
-            "• Keep Preamp: Prevents volume jumps when bypassing the EQ, allowing for fair A/B comparisons.\n" +
-            "• Import: Load existing configurations in .txt format (Equalizer APO). The tool automatically detects frequency, gain, and Q-factor.\n" +
-            "• Export: Save your settings for 'Equalizer APO' (.txt) for PC use or as a .json file for 'Poweramp Equalizer' on Android devices.",
-        sec_gen: "Sound Generators",
-        sine_freq: "Sine Frequency",
-        btn_start_sine: "▶ Start Sine Wave",
-        btn_stop_sine: "⏸ Stop Sine Wave",
-        btn_sweep_down: "⏪ Sweep Down",
-        btn_sweep_up: "⏩ Sweep Up",
-        btn_stop_sweep: "⏹ Stop Sweep",
-        opt_slow: "Slow",
-        opt_med: "Medium",
-        opt_fast: "Fast",
-        volume_label: "Master Volume",
-        btn_start_noise: "▶ Start Pink Noise",
-        btn_stop_noise: "⏸ Stop Pink Noise",
-        sec_filters: "Filter Configuration",
-        lock_preamp: "Keep Preamp",
-        master_eq: "Master EQ",
-        btn_add_filter: "+ Add Filter",
-        btn_bass: "+ Bass Boost",
-        btn_treble: "+ Treble Boost",
-        btn_import: "📂 Import (.txt)",
-        btn_reset: "🗑 Clear All",
-        reset_confirm: "Are you sure you want to delete all filters?",
-        sec_vis: "Frequency Response Visualization",
-        preamp_label: "Required Export Preamp",
-        btn_export: "Export Equalizer APO Preset (.txt)",
-        btn_export_pa: "Export Poweramp Preset (.json)",
-        f_active: "Active",
-        f_type: "Type",
-        f_freq: "Freq (Hz)",
-        f_gain: "Gain (dB)",
-        f_q: "Q-Factor",
-        f_remove: "Remove",
-        type_pk: "Peak",
-        type_ls: "Low Shelf",
-        type_hs: "High Shelf",
-        prompt_name: "Filename for export (without extension):",
-        default_name: "eq_preset",
-        warning_text: "⚠️ WARNING: High volumes and extreme EQ settings can cause hearing loss and damage your hardware. Use this tool with caution, always start at low volumes, and avoid abrupt level increases!",
-        github_link: "GitHub Repository",
-        modal_title: "Filter Preset Found",
-        modal_desc: "This page was loaded with preset filters. Would you like to apply these filters?",
-        btn_yes: "Yes, load filters",
-        btn_no: "No, discard",
-        btn_share: "Share Link",
-        share_link_label: "Link to share:",
-        btn_copy: "Copy",
-        no_filters: "No filters to share.",
-        documentation: "Further information in the documentation",
-        warning_modal_title: "Please rotate your device",
-        warning_modal_desc: "The screen is too narrow to use this tool. Rotate the device into landscape mode if possible."
-    }
-};
-
-const browserLang = navigator.language || navigator.userLanguage;
-let currentLang = browserLang.startsWith('de') ? 'de' : 'en';
-
 let audioCtx = null, preampNode = null, sineOsc = null, sineGain = null, noiseSource = null, noiseGain = null,
     limiterNode = null;
 let mediaSource = null;
@@ -141,25 +9,6 @@ const filters = [];
 let sweepAnimFrame = null;
 let currentSweepDir = 0;
 let currentSweepFreq = 440;
-
-function changeLang(lang) {
-    currentLang = lang;
-    localStorage.setItem('lang', lang);
-    const langSelect = document.getElementById('langSelect');
-    if (langSelect) langSelect.value = lang;
-    document.querySelectorAll('[data-t]').forEach(el => {
-        const key = el.getAttribute('data-t');
-        if (i18n[lang][key]) el.innerText = i18n[lang][key];
-    });
-    document.getElementById('descText').innerText = i18n[lang].instructions;
-    document.getElementById('btnSine').innerText = isSinePlaying ? i18n[lang].btn_stop_sine : i18n[lang].btn_start_sine;
-    document.getElementById('btnNoise').innerText = isNoisePlaying ? i18n[lang].btn_stop_noise : i18n[lang].btn_start_noise;
-
-    if (currentSweepDir === 1) document.getElementById('btnSweepUp').innerText = i18n[lang].btn_stop_sweep;
-    if (currentSweepDir === -1) document.getElementById('btnSweepDown').innerText = i18n[lang].btn_stop_sweep;
-
-    renderFilters();
-}
 
 function initAudio() {
     if (audioCtx) return;
@@ -263,29 +112,25 @@ class PEQFilter {
     }
 }
 
-function addFilter() {
+function addFilter(type, freq, gain, q) {
     initAudio();
-    const freqVal = Math.max(10, Math.min(20000, parseFloat(document.getElementById('sineFreqInput').value) || 440));
-    filters.push(new PEQFilter('peaking', freqVal, 0, 3.0));
+    filters.push(new PEQFilter(type, freq, gain, q));
     renderFilters();
     updateRouting();
     setTimeout(updateGraph, 50);
+}
+
+function addFilterAtSineFreq() {
+    const freqVal = Math.max(10, Math.min(20000, parseFloat(document.getElementById('sineFreqInput').value) || 440));
+    addFilter('peaking', freqVal, 0, 3.0);
 }
 
 function addBassBoost() {
-    initAudio();
-    filters.push(new PEQFilter('lowshelf', 105, 3.0, 0.71));
-    renderFilters();
-    updateRouting();
-    setTimeout(updateGraph, 50);
+    addFilter('lowshelf', 105, 3.0, 0.71);
 }
 
 function addTrebleBoost() {
-    initAudio();
-    filters.push(new PEQFilter('highshelf', 3000, 2.0, 0.71));
-    renderFilters();
-    updateRouting();
-    setTimeout(updateGraph, 50);
+    addFilter('highshelf', 3000, 2.0, 0.71);
 }
 
 function resetAllFilters() {
@@ -392,6 +237,7 @@ function updateRouting() {
     last.connect(limiterNode);
 
     updateGraph();
+    updateExportWarning();
 }
 
 function updateAudioPreamp() {
@@ -703,71 +549,6 @@ function toggleMasterEQ() {
     updateRouting();
 }
 
-function exportAPO() {
-    const name = prompt(i18n[currentLang].prompt_name, i18n[currentLang].default_name);
-    if (name === null) return;
-
-    let txt = `Preamp: ${exportPreampDb.toFixed(2)} dB\n`;
-    filters.forEach(f => {
-        const typeMap = {peaking: "PK", lowshelf: "LSC", highshelf: "HSC"};
-        txt += `${f.active ? '' : '#'}Filter: ON ${typeMap[f.type]} Fc ${f.freq} Hz Gain ${f.gain} dB Q ${f.q}\n`;
-    });
-    const blob = new Blob([txt], {type: "text/plain"});
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `${name || 'eq_preset'}.txt`;
-    a.click();
-}
-
-function exportPoweramp() {
-    const name = prompt(i18n[currentLang].prompt_name, i18n[currentLang].default_name);
-    if (name === null) return;
-
-    const paData = [{
-        "name": name || "eq_preset",
-        "preamp": parseFloat(exportPreampDb.toFixed(2)),
-        "parametric": true,
-        "bands": [
-            {
-                "type": 0,
-                "channels": 0,
-                "frequency": 90,
-                "q": 0.800000011920929,
-                "gain": 0.0,
-                "color": 0
-            },
-            {
-                "type": 1,
-                "channels": 0,
-                "frequency": 10000,
-                "q": 0.6000000238418579,
-                "gain": 0.0,
-                "color": 0
-            }
-        ]
-    }];
-
-    filters.filter(f => f.active).forEach(f => {
-        let pType = 2;
-        if (f.type === 'lowshelf') pType = 0;
-        if (f.type === 'highshelf') pType = 1;
-
-        paData[0].bands.push({
-            "type": pType,
-            "channels": 0,
-            "frequency": parseFloat(f.freq),
-            "q": parseFloat(f.q),
-            "gain": parseFloat(f.gain),
-            "color": 0
-        });
-    });
-
-    const blob = new Blob([JSON.stringify(paData, null, 4)], {type: "application/json"});
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `${name || 'eq_preset'}.json`;
-    a.click();
-}
 
 function toggleTheme() {
     const isDark = document.body.classList.toggle('dark-mode');
@@ -804,38 +585,6 @@ function toggleInfoSection() {
         showBtn.style.display = 'inline-block';
         sessionStorage.setItem('infoClosed', 'true');
     }
-}
-
-function generateShareLink() {
-    if (filters.length === 0) {
-        alert(i18n[currentLang].no_filters);
-        return;
-    }
-
-    const eqData = filters.map(f => {
-        const t = f.type === 'peaking' ? 'p' : (f.type === 'lowshelf' ? 'l' : 'h');
-        return `${t},${f.freq},${f.gain},${f.q},${f.active ? 1 : 0}`;
-    }).join('~');
-
-    const baseURL = "https://mm21development.github.io/headphonetuner/index.html";
-    const shareURL = `${baseURL}?eq=${encodeURIComponent(eqData)}`;
-
-    document.getElementById('shareBox').style.display = 'block';
-    document.getElementById('shareLinkInput').value = shareURL;
-}
-
-function copyShareLink() {
-    const input = document.getElementById('shareLinkInput');
-    input.select();
-    input.setSelectionRange(0, 99999);
-    navigator.clipboard.writeText(input.value).then(() => {
-        const btn = document.querySelector('#shareBox button');
-        const originalText = btn.innerText;
-        btn.innerText = "✓";
-        setTimeout(() => {
-            btn.innerText = originalText;
-        }, 2000);
-    });
 }
 
 function loadFiltersFromURL() {

@@ -127,6 +127,12 @@ button.success:hover {
     background-color: #218838;
 }
 
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed !important;
+    pointer-events: none;
+}
+
 .section {
     border: 1px solid var(--border-color);
     padding: 20px;
@@ -412,7 +418,7 @@ footer {
 /* ----------------------------------------------------------
 Sichtbarkeit des Warning-Overlays bei sehr kleinen Bildschirmen
 ---------------------------------------------------------- */
-@media (max-width: 480px) {
+@media (max-width: 416px) {
     #warningModal {
         display: flex !important;
     }
