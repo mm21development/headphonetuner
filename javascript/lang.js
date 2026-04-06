@@ -4,7 +4,8 @@ const i18n = {
         lang_label: "Sprache",
         instructions: "Dieses Werkzeug dient zur präzisen Korrektur von Kopfhörer-Frequenzgängen mittels parametrischer Equalizer (PEQ).\n" +
             "• Sinus-Generator: Nutze den variablen Ton, um schmalbandige Resonanzen (Peaks) oder Auslöschungen (Dips) aufzuspüren. Ein Peak sticht durch plötzliche Lautstärkezunahme hervor, ein Dip durch ein deutliches 'Loch'.\n" +
-            "• Füge an der Stelle der maximalen Ausprägung einen Filter hinzu, um diese auszugleichen. Ein neuer Filter wird automatisch an der aktuellen Stelle des Sinus-Generators gesetzt. Passe die Breite (Q-Faktor) entsprechend der Ausprägung an.\n" +
+            "• Die Sweep-Funktion fährt in 3 verschiedenen Geschwindigkeiten in wählbarer Richtung ausgehend von der aktuellen Frequenz durch das Frequenzband und hilft so beim Vergleich der Lautstärken.\n" +
+            "• Füge an der Stelle einer deutlichen Ausprägung einen Filter hinzu, um diese auszugleichen. Ein neuer Filter wird automatisch an der aktuellen Sinus-Generator-Frequenz gesetzt. Passe die Breite (Q-Faktor) entsprechend der Ausprägung an.\n" +
             "• Pink Noise: Verwende das Rauschen, um die tonale Gesamtbalance zu beurteilen. Ziel ist es, die Filter-Pegel so feinjustieren, dass kein Frequenzbereich (Bass, Mitten, Höhen) in der Gesamtheit über- oder unterrepräsentiert wirkt.\n" +
             "• Audio Player: Teste die Filter mit deiner eigenen Musik. Es werden alle gängigen Audioformate unterstützt.\n" +
             "• Smart Preamp: Solange deine Gesamtlautstärke es zulässt (Headroom), wird der Pegel beim Boosten nicht leiser (kein Ducking). Erst wenn Clipping droht, greift der Limiter automatisch ein.\n" +
@@ -72,7 +73,8 @@ const i18n = {
         lang_label: "Language",
         instructions: "A tool for precise headphone frequency response correction using Parametric EQ (PEQ).\n" +
             "• Sine Generator: Use the variable tone to sweep for narrow resonances (peaks) or cancellations (dips). A peak stands out as a sudden increase in volume, while a dip feels like a 'hole' in the sound.\n" +
-            "• Add a filter at the point where the peak or dip is loudest or quietest. A new filter will automatically be set to the current sine wave frequency. Adjust the bandwidth (Q-factor) according to the width of the peak or dip.\n" +
+            "• The Sweep function scans across the frequency band in 3 different speeds and a selectable direction, starting from the current frequency, which helps in comparing volumes.\n" +
+            "• Add a filter at the point where the peak or dip is loudest or quietest. A new filter will be automatically set to the current sine generator frequency. Adjust the bandwidth (Q-factor) according to the width of the peak or dip.\n" +
             "• Pink Noise: Use this to judge the overall tonal balance. Fine-tune your filter gains so that no frequency range (bass, mids, treble) feels over- or under-represented in the mix.\n" +
             "• Audio Player: Test the filters with your own music. All common audio-formats are supported.\n" +
             "• Smart Preamp: As long as your master volume allows (headroom), boosting frequencies won't duck the overall audio. A limiter automatically kicks in only to prevent clipping.\n" +
