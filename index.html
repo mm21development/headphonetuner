@@ -5,9 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Parametric EQ Headphone Tuner (PEQ Pro)</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="main.js" defer></script>
-    <script src="version.js" defer></script>
+    <link rel="stylesheet" href="style/style.css">
+    <script src="javascript/lang.js" defer></script>
+    <script src="javascript/main.js" defer></script>
+    <script src="javascript/export.js" defer></script>
+    <script src="javascript/version.js" defer></script>
 </head>
 
 <body>
@@ -103,7 +105,7 @@
                 <button id="btnNoise" class="pink" onclick="toggleNoise()" data-t="btn_start_noise"
                     >▶ Pink Noise starten</button>
                 <label style="display: flex; align-items: center; gap: 10px; margin-left: auto;">
-                    <span data-t="volume_label">Gesamtlautstärke</span>:
+                    <span>Volume</span>:
                     <input type="range" id="masterVol" min="0" max="1" step="0.01" value="0.5">
                     <span id="volLabel" style="min-width: 40px; font-weight: bold;">50%</span>
                 </label>
@@ -133,7 +135,7 @@
 
             <div class="action-bar">
                 <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <button onclick="addFilter()" data-t="btn_add_filter">+ Filter hinzufügen</button>
+                    <button onclick="addFilterAtSineFreq()" data-t="btn_add_filter">+ Filter hinzufügen</button>
                     <button class="secondary" onclick="addBassBoost()" data-t="btn_bass">+ Bass Boost</button>
                     <button class="secondary" onclick="addTrebleBoost()" data-t="btn_treble">+ Höhen Boost</button>
                     <button class="secondary" onclick="document.getElementById('fileInput').click()"
@@ -153,10 +155,21 @@
             <canvas id="eqGraph" width="1000" height="350"></canvas>
         </div>
 
-        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
-            <button onclick="exportAPO()" style="flex: 1; font-size: 16px; padding: 15px;" data-t="btn_export">Equalizer APO Preset exportieren</button>
-            <button class="warning" onclick="exportPoweramp()" style="flex: 1; font-size: 16px; padding: 15px;" data-t="btn_export_pa">Poweramp Preset (.json) exportieren</button>
-            <button class="success" onclick="generateShareLink()" style="flex: 1; font-size: 16px; padding: 15px;" data-t="btn_share">Link teilen</button>
+        <div style="margin-top: 15px;">
+            <label style="font-weight: bold; margin-bottom: 5px; display: block;" data-t="export_format_label">Export-Format auswählen:</label>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <select id="exportTypeSelect" onchange="updateExportWarning()" style="flex: 2; min-height: 48px; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--container-bg); color: var(--text-color); font-size: 16px; cursor: pointer;">
+                    <option value="apo">Equalizer APO (.txt)</option>
+                    <option value="wavelet">Wavelet (.txt)</option>
+                    <option value="poweramp">Poweramp (.json)</option>
+                    <option value="fractal">Fractal Scape (Text)</option>
+                </select>
+                <button id="exportButton" onclick="executeExport()" style="flex: 1; min-height: 48px; font-size: 16px; padding: 10px;" data-t="btn_export_action">💾 Exportieren</button>
+                <button class="success" onclick="generateShareLink()" style="flex: 1; min-height: 48px; font-size: 16px; padding: 10px;" data-t="btn_share">Link teilen</button>
+            </div>
+        </div>
+
+        <div id="exportWarningBox" style="display: none; margin-top: 12px; padding: 12px; border-radius: 6px; border: 1px solid var(--warning-color); background-color: rgba(230, 126, 34, 0.15); color: var(--text-color); font-size: 14px; line-height: 1.4;">
         </div>
 
         <div id="shareBox" class="share-box">
@@ -164,6 +177,14 @@
             <div style="display: flex; gap: 10px;">
                 <input type="text" id="shareLinkInput" readonly style="flex: 1; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--container-bg); color: var(--text-color);">
                 <button onclick="copyShareLink()" class="success" data-t="btn_copy" style="padding: 10px 20px;">Kopieren</button>
+            </div>
+        </div>
+
+        <div id="fractalBox" class="share-box">
+            <label style="font-weight: bold; margin-bottom: 5px; display: block;" data-t="fractal_string_label">Fractal Scape String:</label>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="fractalStringInput" readonly style="flex: 1; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--container-bg); color: var(--text-color);">
+                <button onclick="copyFractalString()" class="success" data-t="btn_copy" style="padding: 10px 20px;">Kopieren</button>
             </div>
         </div>
 
